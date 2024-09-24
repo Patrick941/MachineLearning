@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import os
+from sklearn.linear_model import LogisticRegression
 import matplotlib.pyplot as plt
 
 fileDirectory = os.path.dirname(os.path.abspath(__file__))
@@ -23,4 +24,14 @@ plt.ylabel('x_2')
 plt.legend()
 plt.title('2D Plot of Features with Target Values')
 plt.grid(True)
-plt.show()
+# plt.show()
+
+model = LogisticRegression()
+model.fit(X, y)
+
+predictions = model.predict(X)
+coefficients = model.coef_[0]
+intercept = model.intercept_[0]
+
+print("Model coefficients:", coefficients)
+print("Model intercept:", intercept)
