@@ -17,7 +17,7 @@ X = np.column_stack((X1, X2))
 y = df.iloc[:, 2]
 
 plt.figure(figsize=(8, 6))
-plt.scatter(X[y == 1, 0], X[y == 1, 1], marker='+', color='blue', label='+1')
+plt.scatter(X[y == 1, 0], X[y == 1, 1], marker='o', color='blue', label='+1')
 plt.scatter(X[y == -1, 0], X[y == -1, 1], marker='o', color='red', label='-1')
 
 plt.xlabel('x_1')
@@ -25,8 +25,7 @@ plt.ylabel('x_2')
 plt.legend()
 plt.title('2D Plot of Features with Target Values')
 plt.grid(True)
-plt.ion()
-plt.show()
+plt.savefig(os.path.join(fileDirectory, 'A(i).png'))
 
 C_values = [0.01, 1, 100, 1000]
 models = []
@@ -51,12 +50,12 @@ for ax, (C, model) in zip(axes, models):
     Z = Z.reshape(xx.shape)
     
     ax.contourf(xx, yy, Z, alpha=0.3)
-    ax.scatter(X[y == 1, 0], X[y == 1, 1], marker='+', color='blue', label='+1')
-    ax.scatter(X[y == -1, 0], X[y == -1, 1], marker='o', color='red', label='-1')
+    ax.scatter(X[y == 1, 0], X[y == 1, 1], marker='o', color='blue', label='Actual +1')
+    ax.scatter(X[y == -1, 0], X[y == -1, 1], marker='o', color='red', label='Actual -1')
     
     predictions = model.predict(X)
-    ax.scatter(X[predictions == 1, 0], X[predictions == 1, 1], marker='x', color='cyan', label='Predicted +1')
-    ax.scatter(X[predictions == -1, 0], X[predictions == -1, 1], marker='s', color='magenta', label='Predicted -1', alpha=0.5)
+    ax.scatter(X[predictions == 1, 0], X[predictions == 1, 1], marker='x', color='green', label='Predicted +1')
+    ax.scatter(X[predictions == -1, 0], X[predictions == -1, 1], marker='+', color='orange', label='Predicted -1')
     
     ax.set_title(f'Decision Boundary for C={C}')
     ax.set_xlabel('x_1')
@@ -65,4 +64,4 @@ for ax, (C, model) in zip(axes, models):
     ax.grid(True)
 
 plt.tight_layout()
-plt.show()
+plt.savefig(os.path.join(fileDirectory, 'B(ii).png'))
