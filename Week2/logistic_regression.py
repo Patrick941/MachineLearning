@@ -9,7 +9,7 @@ fileDirectory = os.path.dirname(os.path.abspath(__file__))
 ## Assumes only one csv
 csv_file = [f for f in os.listdir(fileDirectory) if f.endswith('.csv')][0]
 csv_path = os.path.join(fileDirectory, csv_file)
-df = pd.read_csv(csv_path)
+df = pd.read_csv(csv_path, skiprows=1)
 
 X1 = df.iloc[:, 0]
 X2 = df.iloc[:, 1]

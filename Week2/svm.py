@@ -10,8 +10,7 @@ fileDirectory = os.path.dirname(os.path.abspath(__file__))
 ## Assumes only one csv
 csv_file = [f for f in os.listdir(fileDirectory) if f.endswith('.csv')][0]
 csv_path = os.path.join(fileDirectory, csv_file)
-df = pd.read_csv(csv_path)
-
+df = pd.read_csv(csv_path, skiprows=1)
 X1 = df.iloc[:, 0]
 X2 = df.iloc[:, 1]
 X = np.column_stack((X1, X2))
@@ -26,7 +25,8 @@ plt.ylabel('x_2')
 plt.legend()
 plt.title('2D Plot of Features with Target Values')
 plt.grid(True)
-# plt.show()
+plt.ion()
+plt.show()
 
 C_values = [0.01, 1, 100, 1000]
 models = []
