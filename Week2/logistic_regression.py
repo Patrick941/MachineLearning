@@ -16,10 +16,6 @@ X2 = df.iloc[:, 1]
 X = np.column_stack((X1, X2))
 y = df.iloc[:, 2]
 
-# Transform features to polynomial features of degree 2
-poly = PolynomialFeatures(degree=2)
-X_poly = poly.fit_transform(X)
-
 plt.figure(figsize=(8, 6))
 plt.scatter(X[y == 1, 0], X[y == 1, 1], marker='+', color='blue', label='+1')
 plt.scatter(X[y == -1, 0], X[y == -1, 1], marker='o', color='red', label='-1')
@@ -29,26 +25,30 @@ plt.ylabel('x_2')
 plt.legend()
 plt.title('2D Plot of Features with Target Values')
 plt.grid(True)
-# plt.show()
+plt.savefig(os.path.join(fileDirectory, 'A(iii).png'))
 
+poly = PolynomialFeatures(degree=2)
+X_poly = poly.fit_transform(X)
 model = LogisticRegression()
-model.fit(X_poly, y)
+model.fit(X, y)
 
-predictions = model.predict(X_poly)
+predictions = model.predict(X)
 coefficients = model.coef_[0]
 intercept = model.intercept_[0]
 
 print("Model coefficients:", coefficients)
 print("Model intercept:", intercept)
 
-predictions = model.predict(X_poly)
+model_polynomial = LogisticRegression()
+model_polynomial.fit(X_poly, y)
+predictions = model_polynomial.predict(X_poly)
 x_min, x_max = -1, 1
 y_min, y_max = -1, 1
 xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.01),
                      np.arange(y_min, y_max, 0.01))
 
 Z = poly.transform(np.c_[xx.ravel(), yy.ravel()])
-Z = model.predict(Z)
+Z = model_polynomial.predict(Z)
 Z = Z.reshape(xx.shape)
 
 plt.contourf(xx, yy, Z, alpha=0.3, cmap=plt.cm.Paired)
@@ -61,6 +61,4 @@ plt.title('Decision Boundary with Training Data')
 plt.grid(True)
 plt.xlim(-1, 1)
 plt.ylim(-1, 1)
-plt.show()
-
-breakpoint
+plt.savefig(os.path.join(fileDirectory, 'C(i).png'))
