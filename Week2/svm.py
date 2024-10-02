@@ -23,7 +23,7 @@ plt.scatter(X[y == -1, 0], X[y == -1, 1], marker='o', color='red', label='-1')
 plt.xlabel('x_1')
 plt.ylabel('x_2')
 plt.legend()
-plt.title('2D Plot of Features with Target Values')
+plt.title('Data Points Graph')
 plt.grid(True)
 plt.savefig(os.path.join(fileDirectory, 'A(i).png'))
 
@@ -57,7 +57,7 @@ for ax, (C, model) in zip(axes, models):
     ax.scatter(X[predictions == 1, 0], X[predictions == 1, 1], marker='x', color='green', label='Predicted +1')
     ax.scatter(X[predictions == -1, 0], X[predictions == -1, 1], marker='+', color='orange', label='Predicted -1')
     
-    ax.set_title(f'Decision Boundary for C={C}')
+    ax.set_title(f'Decision Boundary for svm of C={C}')
     ax.set_xlabel('x_1')
     ax.set_ylabel('x_2')
     ax.legend()
