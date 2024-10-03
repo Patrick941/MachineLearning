@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import os
-from sklearn.svm import SVC
+from sklearn.svm import LinearSVC
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import make_pipeline
 import matplotlib.pyplot as plt
@@ -17,7 +17,7 @@ X = np.column_stack((X1, X2))
 y = df.iloc[:, 2]
 
 plt.figure(figsize=(8, 6))
-plt.scatter(X[y == 1, 0], X[y == 1, 1], marker='o', color='blue', label='+1')
+plt.scatter(X[y == 1, 0], X[y == 1, 1], marker='+', color='blue', label='+1')
 plt.scatter(X[y == -1, 0], X[y == -1, 1], marker='o', color='red', label='-1')
 
 plt.xlabel('x_1')
@@ -30,13 +30,12 @@ plt.savefig(os.path.join(fileDirectory, 'A(i).png'))
 C_values = [0.01, 1, 100, 1000]
 models = []
 for C in C_values:
-    model = make_pipeline(StandardScaler(), SVC(kernel='rbf', degree=2, C=C, max_iter=1000000))
+    model = make_pipeline(StandardScaler(), LinearSVC(C=C, max_iter=1000000))
     model.fit(X, y)
     models.append((C, model))
 
 for C, model in models:
     print(f"Model trained with C={C}")
-    print(f"Support Vectors: {model.named_steps['svc'].support_vectors_}")
 
 x_min, x_max = -1, 1
 y_min, y_max = -1, 1
