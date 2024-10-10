@@ -81,7 +81,7 @@ Using LinearSVC a model was trained for a range of penalty parameters C. The fol
 <div style="font-size: 0.8em;">
 
 ```python
-C_values = [0.01, 1, 100, 1000]
+C_values = [0.001, 1, 100, 1000]
 models = []
 for C in C_values:
     model = make_pipeline(StandardScaler(), LinearSVC(C=C, max_iter=1000000))
@@ -101,7 +101,7 @@ The coefficients and intercepts for each model were printed to the terminal and 
 <div style="font-size: 0.8em;">
 
 ```txt
-C_values = [0.01, 1, 100, 1000]
+C_values = [0.001, 1, 100, 1000]
 models = []
 for C in C_values:
     model = make_pipeline(StandardScaler(), LinearSVC(C=C, max_iter=1000000))
@@ -159,7 +159,7 @@ From this code the following graph was generated which shows the classifier deci
 ![Figure 3](B(ii).png)\
 
 ### B)iii)
-The graphs look very much the same except for some small differences but do not tell use much. The coefficients and intercepts printed to terminal do differ somewhat though. As C gets larger the coefficients get larger and converge to the best set of coefficients for the training data. This is not always wanted though as the model can easily overfit. The smaller values for C are just trying to follow the trend of the data. This is difficult to observe in this case though due to the LinearSVC model being used not fitting the data well.
+The graphs look very much the same except for the first graph that has its line slightly lower than the rest, what is more telling is what is printed to terminal. The coefficients and intercepts printed to terminal do differ somewhat though. As C gets larger the coefficients get larger and converge to the best set of coefficients for the training data. This is not always wanted though as the model can easily overfit. The smaller values for C are just trying to follow the trend of the data. This is difficult to observe in this case though due to the LinearSVC model being used not fitting the data well.
 
 ### B)iv)
 The predictions much like with the linear regression do not do a very good job and predicting the class of the data. This is due to the fact that the data is not linearly separable. The decision boundary is converging towards the best possible prediction for the training data with a linear classifier but a squared classifier would be much better suited for this data.
@@ -286,3 +286,178 @@ plt.savefig(os.path.join(fileDirectory, 'C(iv).png'))
 
 From this code the following graph was generated:\
 ![Figure 5](C(iv).png)
+
+
+### Appendicies
+All of the code has already been included in the report in the relevant sections but the full code can be found below:
+
+#### logistic_regression.py
+```python
+import numpy as np
+import pandas as pd
+import os
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.dummy import DummyClassifier
+from sklearn.metrics import accuracy_score
+import matplotlib.pyplot as plt
+
+fileDirectory = os.path.dirname(os.path.abspath(__file__))
+## Assumes only one csv
+csv_file = [f for f in os.listdir(fileDirectory) if f.endswith('.csv')][0]
+csv_path = os.path.join(fileDirectory, csv_file)
+df = pd.read_csv(csv_path, skiprows=1)
+
+# Extract features and target
+X1 = df.iloc[:, 0]
+X2 = df.iloc[:, 1]
+X = np.column_stack((X1, X2))
+y = df.iloc[:, 2]
+
+model = LogisticRegression()
+model.fit(X, y)
+
+coefficients = model.coef_[0]
+intercept = model.intercept_[0]
+print("Model coefficients:", coefficients)
+print("Model intercept:", intercept)
+predictions = model.predict(X)
+plt.figure(figsize=(8, 6))
+plt.scatter(X[y == 1, 0], X[y == 1, 1], marker='o', color='blue', label='Actual +1')
+plt.scatter(X[y == -1, 0], X[y == -1, 1], marker='o', color='red', label='Actual -1')
+plt.scatter(X[predictions == 1, 0], X[predictions == 1, 1], marker='x', color='green', label='Predicted +1')
+plt.scatter(X[predictions == -1, 0], X[predictions == -1, 1], marker='+', color='orange', label='Predicted -1')
+x_values = np.linspace(X[:, 0].min(), X[:, 0].max(), 100)
+decision_boundary = -(coefficients[0] * x_values + intercept) / coefficients[1]
+plt.plot(x_values, decision_boundary, color='black', linestyle='--', label='Decision Boundary')
+
+plt.xlabel('x_1')
+plt.ylabel('x_2')
+plt.legend()
+plt.title('Logistic Regression Classifier')
+plt.grid(True)
+plt.savefig(os.path.join(fileDirectory, 'A(iii).png'))
+
+X_squared = np.column_stack((X, X**2))
+model = LogisticRegression()
+model.fit(X_squared, y)
+
+predictions = model.predict(X_squared)
+coefficients = model.coef_[0]
+intercept = model.intercept_[0]
+
+print("Model coefficients:", coefficients)
+print("Model intercept:", intercept)
+
+baseline_model = DummyClassifier(strategy='most_frequent')
+baseline_model.fit(X_squared, y)
+baseline_predictions = baseline_model.predict(X_squared)
+baseline_accuracy = accuracy_score(y, baseline_predictions)
+
+logistic_accuracy = accuracy_score(y, predictions)
+
+print("Baseline model accuracy:", baseline_accuracy)
+print("Logistic regression model accuracy:", logistic_accuracy)
+
+plt.figure(figsize=(8, 6))
+plt.scatter(X[y == 1, 0], X[y == 1, 1], marker='o', color='blue', label='Actual +1')
+plt.scatter(X[y == -1, 0], X[y == -1, 1], marker='o', color='red', label='Actual -1')
+plt.scatter(X[predictions == 1, 0], X[predictions == 1, 1], marker='x', color='green', label='Predicted +1')
+plt.scatter(X[predictions == -1, 0], X[predictions == -1, 1], marker='+', color='orange', label='Predicted -1')
+
+plt.xlabel('x_1')
+plt.ylabel('x_2')
+plt.legend()
+plt.title('Logistic Regression with Squared Features')
+plt.grid(True)
+plt.xlim(-1, 1)
+plt.ylim(-1, 1)
+plt.savefig(os.path.join(fileDirectory, 'C(i).png'))
+
+x1_sorted = np.sort(X[:, 0])
+x2_sorted = np.sort(X[:, 1])
+
+y_values = (-model.coef_[0][0] * x1_sorted - model.coef_[0][2] * x1_sorted**2 - model.intercept_[0]) / (model.coef_[0][1] + model.coef_[0][3] * x2_sorted)
+
+x_min, x_max = X[:, 0].min() - 1, X[:, 0].max() + 1
+y_min, y_max = X[:, 1].min() - 1, X[:, 1].max() + 1
+xx, yy = np.meshgrid(np.linspace(x_min, x_max, 100),
+                     np.linspace(y_min, y_max, 100))
+
+Z = model.predict(np.column_stack((xx.ravel(), yy.ravel(), (xx**2).ravel(), (yy**2).ravel())))
+Z = Z.reshape(xx.shape)
+
+plt.plot(x1_sorted, y_values, 'k-')
+plt.title('Logistic Regression Classifier with Squared Features')
+plt.savefig(os.path.join(fileDirectory, 'C(iv).png'))
+```
+
+#### svm.py
+```python
+import numpy as np
+import pandas as pd
+import os
+from sklearn.svm import LinearSVC
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import make_pipeline
+import matplotlib.pyplot as plt
+
+fileDirectory = os.path.dirname(os.path.abspath(__file__))
+## Assumes only one csv
+csv_file = [f for f in os.listdir(fileDirectory) if f.endswith('.csv')][0]
+csv_path = os.path.join(fileDirectory, csv_file)
+df = pd.read_csv(csv_path, skiprows=1)
+X1 = df.iloc[:, 0]
+X2 = df.iloc[:, 1]
+X = np.column_stack((X1, X2))
+y = df.iloc[:, 2]
+
+plt.figure(figsize=(8, 6))
+plt.scatter(X[y == 1, 0], X[y == 1, 1], marker='+', color='blue', label='+1')
+plt.scatter(X[y == -1, 0], X[y == -1, 1], marker='o', color='red', label='-1')
+
+plt.xlabel('x_1')
+plt.ylabel('x_2')
+plt.legend()
+plt.title('Data Points Graph')
+plt.grid(True)
+plt.savefig(os.path.join(fileDirectory, 'A(i).png'))
+
+C_values = [0.001, 1, 100, 1000]
+models = []
+for C in C_values:
+    model = make_pipeline(StandardScaler(), LinearSVC(C=C, max_iter=1000000))
+    model.fit(X, y)
+    models.append((C, model))
+
+for C, model in models:
+    print(f"Model trained with C={C}")
+
+x_min, x_max = -1, 1
+y_min, y_max = -1, 1
+xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.01),
+                        np.arange(y_min, y_max, 0.01))
+
+fig, axes = plt.subplots(1, len(C_values), figsize=(20, 5))
+
+for ax, (C, model) in zip(axes, models):
+    Z = model.predict(np.c_[xx.ravel(), yy.ravel()])
+    Z = Z.reshape(xx.shape)
+    
+    ax.contourf(xx, yy, Z, alpha=0.3)
+    ax.scatter(X[y == 1, 0], X[y == 1, 1], marker='o', color='blue', label='Actual +1')
+    ax.scatter(X[y == -1, 0], X[y == -1, 1], marker='o', color='red', label='Actual -1')
+    
+    predictions = model.predict(X)
+    ax.scatter(X[predictions == 1, 0], X[predictions == 1, 1], marker='x', color='green', label='Predicted +1')
+    ax.scatter(X[predictions == -1, 0], X[predictions == -1, 1], marker='+', color='orange', label='Predicted -1')
+    
+    ax.set_title(f'Decision Boundary for svm of C={C}')
+    ax.set_xlabel('x_1')
+    ax.set_ylabel('x_2')
+    ax.legend()
+    ax.grid(True)
+
+plt.tight_layout()
+plt.savefig(os.path.join(fileDirectory, 'B(ii).png'))
+```

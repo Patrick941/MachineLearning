@@ -27,7 +27,7 @@ plt.title('Data Points Graph')
 plt.grid(True)
 plt.savefig(os.path.join(fileDirectory, 'A(i).png'))
 
-C_values = [0.01, 1, 100, 1000]
+C_values = [0.001, 1, 100, 1000]
 models = []
 for C in C_values:
     model = make_pipeline(StandardScaler(), LinearSVC(C=C, max_iter=1000000))
