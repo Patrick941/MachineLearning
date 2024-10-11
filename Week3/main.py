@@ -103,22 +103,26 @@ def cross_validation_analysis(model_class, C_values, png_name):
             error_difference = abs(previous_mean_error - mean_error)
             if error_difference < threshold:
                 if meaningful_data_found == True:
-                    final_c = C
+                    final_c = previous_c
                 else:
                     pass
             else:
                 if meaningful_data_found == True:
                     pass
                 else: 
-                    initial_c = C               
+                    initial_c = previous_c              
                 meaningful_data_found = True            
         else:
             pass
 
+        previous_c = C
         previous_mean_error = mean_error
         
+    mean_errors = []
+    std_errors = []
+        
     if initial_c is not None and final_c is not None:
-        spaced_c_values = np.linspace(initial_c, final_c, 6)
+        spaced_c_values = np.logspace(np.log10(initial_c), np.log10(final_c), 20)
         
     for spaced_C in spaced_c_values:
         model = model_class(alpha=1/(2*spaced_C), max_iter=10000)
@@ -129,9 +133,8 @@ def cross_validation_analysis(model_class, C_values, png_name):
         mean_errors.append(mean_error)
         std_errors.append(std_error)
 
-            
-
-    plt.errorbar(spaced_C, mean_error, yerr=std_error, fmt='bo', capsize=5)
+    plt.figure()   
+    plt.errorbar(spaced_c_values, mean_errors, yerr=std_errors, fmt='o-', capsize=5)
     plt.xscale('log')
     plt.xlabel('C values (log scale)')
     plt.ylabel('Mean squared error')
