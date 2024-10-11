@@ -107,6 +107,7 @@ def find_meaningful_c_range(model_class, C_values, X_poly, y):
             if error_difference < threshold:
                 if meaningful_data_found:
                     final_c = previous_c
+                    break
             else:
                 if meaningful_data_found:
                     pass
@@ -150,9 +151,6 @@ print("\033[91m" + "Ridge regression:" + "\033[0m")
 C_values = [0.000001, 0.001, 1, 10]
 regression_analysis(Ridge, C_values, 'i(e).png')
 
-print("\033[91m" + "Lasso regression:" + "\033[0m")
 C_values = [10**i for i in range(-7, 5)]
 cross_validation_analysis(Lasso, C_values, 'ii(a).png')
-
-print("\033[91m" + "Ridge regression:" + "\033[0m")
 cross_validation_analysis(Ridge, C_values, 'ii(c).png')

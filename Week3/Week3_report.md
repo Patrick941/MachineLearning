@@ -116,6 +116,23 @@ Mean square error: 0.04166857632646202
 ```
 
 </div>
+The graphs produced are as follows:\
+![](i(e).png)
+
+### II(A)
+For this section Cross-Validation was used to plot the mean and standard deviation of the mean squared error of a range of values for C for the lasso regression. The prediction error chosen is mean squared error. The range of values for C chosen was 1 to 100 with 20 data points taken at logarithmic intervals. This produced a clear graph where we can a clear drop off in the rate of decrease of the mean squared error as C increases. Another observation to be made is as C increases the standard deviation of the mean squared error also increases. This is another byproduct of over-fitting.\
+
+The graph produced is as follows:\
+![](ii(a).png)
+
+### II(B)
+Taking the cross validation error we can see a range of values of C that will be likely to produce a good model. The recommendation that I would make is to choose 10.5 as the value of C. This is because it is the lowest value of C that has a mean squared error that is only marginally higher than the lowest. It also maintains a low standard deviation of the mean squared error. This is likely to generalise well to new data.
+
+### II(C)
+The same code that was applied for the lasso regression was applied to the ridge regression. The same prediction error scoring was chosen as the mean squared error. The range of values for C chosen was $10^{-5}$ to 1 as this shows the most significant change in the mean squared error and provides a clear graph for choosing an optimal value for C. The graph produced is as follows:\
+![](ii(c).png)
+
+From this graph I would recommend choosing a value of C of 0.11 for the same reasons as the lasso regression. This is because it is the lowest value of C that has a mean squared error that is only marginally higher than the lowest. It also maintains a low standard deviation of the mean squared error. 
 
 
 
@@ -206,6 +223,80 @@ regression_analysis(Lasso, C_values, 'i(c).png')
 print("\033[91m" + "Ridge regression:" + "\033[0m")
 C_values = [0.000001, 0.001, 1, 10]
 regression_analysis(Ridge, C_values, 'i(e).png')
+```
+
+</div>
+
+### II(A)
+
+<div style="font-size: 0.8em;">
+
+```python
+def cross_validation_analysis(model_class, C_values, png_name):
+    data = load_data('week3.csv')
+    X = data[['Feature1', 'Feature2']].values
+    y = data['Target'].values
+
+    poly = PolynomialFeatures(degree=5)
+    X_poly = poly.fit_transform(X)
+
+    initial_c, final_c = find_meaningful_c_range(model_class, C_values, X_poly, y)
+    if initial_c and final_c:
+        spaced_c_values = np.logspace(np.log10(initial_c), np.log10(final_c), 20)
+        plot_cross_validation_error(model_class, spaced_c_values, X_poly, y, png_name)
+
+def find_meaningful_c_range(model_class, C_values, X_poly, y):
+    previous_mean_error = None
+    threshold = 0.01 
+    meaningful_data_found = False
+    initial_c = None
+    final_c = None
+
+    for C in C_values:
+        model = model_class(alpha=1/(2*C), max_iter=10000)
+        scores = cross_val_score(model, X_poly, y, cv=5, scoring='neg_mean_squared_error')
+        mean_error = -scores.mean()
+
+        if previous_mean_error is not None:
+            error_difference = abs(previous_mean_error - mean_error)
+            if error_difference < threshold:
+                if meaningful_data_found:
+                    final_c = previous_c
+            else:
+                if meaningful_data_found:
+                    pass
+                else: 
+                    initial_c = previous_c              
+                meaningful_data_found = True            
+        previous_c = C
+        previous_mean_error = mean_error
+
+    return initial_c, final_c
+
+def plot_cross_validation_error(model_class, C_values, X_poly, y, png_name):
+    mean_errors = []
+    std_errors = []
+
+    for C in C_values:
+        model = model_class(alpha=1/(2*C), max_iter=10000)
+        scores = cross_val_score(model, X_poly, y, cv=5, scoring='neg_mean_squared_error')
+        mean_errors.append(-scores.mean())
+        std_errors.append(scores.std())
+
+    plt.figure()   
+    plt.errorbar(C_values, mean_errors, yerr=std_errors, fmt='o-', capsize=5)
+    plt.xscale('log')
+    plt.xlabel('C values (log scale)')
+    plt.ylabel('Mean squared error')
+    plt.title(f'Cross-validation error for {model_class.__name__}')
+    
+    plt.savefig(os.path.join(os.path.dirname(__file__), png_name))
+    plt.close()
+
+C_values = [10**i for i in range(-7, 5)]
+cross_validation_analysis(Lasso, C_values, 'ii(a).png')
+cross_validation_analysis(Ridge, C_values, 'ii(c).png')
+
 ```
 
 </div>
