@@ -1,11 +1,13 @@
-<div align="center">
+---
+geometry: margin=30mm
+title: "Assignment Week 3"
+author: "Student Name: Patrick Farmer       Student Number: 20331828"
+date: "Date: 2024-07-10     Dataset: 20--40-20"
+---
 
-# Assignment Week 3
-## Name: Patrick Farmer Student Number 201331828
+![](https://www.tcd.ie/media/tcd/site-assets/images/tcd-logo.png)
 
-### Dataset: 20--40-20 
-
-</div>
+\clearpage
 
 
 ### I(A)

@@ -57,7 +57,10 @@ def plot_regression_results(model_class, C_values, X, y, X_poly, poly, png_name)
     fig, axes = plt.subplots(1, 4, subplot_kw={'projection': '3d'}, figsize=(24, 6))
     colors = ['blue', 'green', 'orange', 'purple']
 
-    for ax, C, color in zip(axes, C_values, colors):
+    fig, axes = plt.subplots(2, 2, subplot_kw={'projection': '3d'}, figsize=(12, 12))
+    colors = ['blue', 'green', 'orange', 'purple']
+
+    for ax, C, color in zip(axes.flatten(), C_values, colors):
         model = model_class(alpha=1/(2*C), max_iter=10000)
         model.fit(X_poly, y)
         predictions = model.predict(X_test_poly).reshape((50, 50))
