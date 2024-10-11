@@ -9,6 +9,34 @@ from sklearn.metrics import mean_squared_error
 from sklearn.dummy import DummyRegressor
 from sklearn.model_selection import cross_val_score
 
+file_path = os.path.join(os.path.dirname(__file__), 'week3.csv')
+column_names = ['Feature1', 'Feature2', 'Target']
+data = pd.read_csv(file_path, names=column_names, skiprows=1)
+
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+ax.scatter(data['Feature1'], data['Feature2'], data['Target'], color='red')
+
+ax.set_xlabel('Feature 1')
+ax.set_ylabel('Feature 2')
+ax.set_zlabel('Target')
+ax.set_title('3D Scatter Plot of Base Data')
+
+fig, axes = plt.subplots(2, 2, subplot_kw={'projection': '3d'}, figsize=(12, 12))
+
+angles = [(20, 30), (30, 60), (40, 90), (10, -60)]
+for ax, (elev, azim) in zip(axes.flatten(), angles):
+    ax.scatter(data['Feature1'], data['Feature2'], data['Target'], color='red')
+    ax.set_xlabel('Feature 1')
+    ax.set_ylabel('Feature 2')
+    ax.set_zlabel('Target')
+    ax.set_title(f'3D Scatter Plot (elev={elev}, azim={azim})')
+    ax.view_init(elev=elev, azim=azim)
+
+output_path = os.path.join(os.path.dirname(__file__), 'i(a).png')
+plt.savefig(output_path)
+plt.close()
+
 def regression_analysis(model_class, C_values, png_name):
     file_path = os.path.join(os.path.dirname(__file__), 'week3.csv')
     column_names = ['Feature1', 'Feature2', 'Target']
@@ -63,11 +91,13 @@ def regression_analysis(model_class, C_values, png_name):
     output_path = os.path.join(os.path.dirname(__file__), png_name)
     plt.savefig(output_path)
 
-C_values = [1, 10, 100, 1000]
-regression_analysis(Lasso, C_values, 'Lasso_predictions.png')
+print("\033[91m" + "Lasso regression:" + "\033[0m")
+C_values = [1, 10, 1000, 10000]
+regression_analysis(Lasso, C_values, 'i(c).png')
 
+print("\033[91m" + "Ridge regression:" + "\033[0m")
 C_values = [0.000001, 0.001, 1, 10]
-regression_analysis(Ridge, C_values, 'Ridge_predictions.png')
+regression_analysis(Ridge, C_values, 'i(e).png')
 
 def cross_validation_analysis(model_class, C_values, png_name):
     file_path = os.path.join(os.path.dirname(__file__), 'week3.csv')
@@ -143,7 +173,8 @@ def cross_validation_analysis(model_class, C_values, png_name):
     output_path = os.path.join(os.path.dirname(__file__), png_name)
     plt.savefig(output_path)
     plt.close()
-
+print("\033[91m" + "Lasso regression:" + "\033[0m")
 C_values = [10**i for i in range(-7, 5)]
-cross_validation_analysis(Lasso, C_values, 'Lasso_cross_validation.png')
-cross_validation_analysis(Ridge, C_values, 'Ridge_cross_validation.png')
+cross_validation_analysis(Lasso, C_values, 'ii(a).png')
+print("\033[91m" + "Ridge regression:" + "\033[0m")
+cross_validation_analysis(Ridge, C_values, 'ii(c).png')
