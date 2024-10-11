@@ -61,7 +61,6 @@ def regression_analysis(model_class, C_values, png_name):
 
     output_path = os.path.join(os.path.dirname(__file__), png_name)
     plt.savefig(output_path)
-    plt.show()
 
 C_values = [1, 10, 100, 1000]
 
