@@ -1,85 +1,51 @@
 import numpy as np
 import pandas as pd
-from sklearn.preprocessing import PolynomialFeatures
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import cross_val_score, GridSearchCV
-from sklearn.pipeline import Pipeline
+from sklearn.model_selection import cross_val_score, GridSearchCV, train_test_split
+from sklearn.metrics import confusion_matrix, roc_curve, auc
+from sklearn.preprocessing import PolynomialFeatures
 import matplotlib.pyplot as plt
 import os
+from collections import Counter
+from sklearn.pipeline import Pipeline
+import knn
+import logistic_regression
 
-# Ensure the Images directory exists
+def run_baseline(y_train, y_test, index):
+    most_frequent_class = Counter(y_train).most_common(1)[0][0]
+    baseline_most_frequent = np.full_like(y_test, most_frequent_class)
+    np.random.seed(42)
+    baseline_random = np.random.choice(np.unique(y_train), size=y_test.shape)
+    cm_baseline_most_frequent = confusion_matrix(y_test, baseline_most_frequent)
+    cm_baseline_random = confusion_matrix(y_test, baseline_random)
+    print(f"Confusion matrix for baseline most frequent (week4_{index}.csv):\n{cm_baseline_most_frequent}")
+    print(f"Confusion matrix for baseline random (week4_{index}.csv):\n{cm_baseline_random}")
+
 os.makedirs('Images', exist_ok=True)
+script_dir = os.path.dirname(os.path.abspath(__file__))
+os.chdir(script_dir)
 
 for index in range(1, 3):
-    # Load the dataset from week4_$index.csv, skipping the first row
     data = pd.read_csv(f'week4_{index}.csv', skiprows=1)
-    X = data.iloc[:, :-1].values  # Assuming the last column is the target
+    X = data.iloc[:, :-1].values
     y = data.iloc[:, -1].values
 
-    # Check for and handle missing values in the target variable
     if np.any(pd.isnull(y)):
         raise ValueError("The target variable y contains NaN values. Please clean the data before proceeding.")
 
-    # Define the range of polynomial orders and C values to consider
-    poly_orders = [1, 2, 3, 4, 5]
-    C_values = np.logspace(-4, 4, 10)
-
-    # Create a pipeline with PolynomialFeatures and LogisticRegression
-    pipeline = Pipeline([
-        ('poly', PolynomialFeatures()),
-        ('logreg', LogisticRegression(penalty='l2', solver='liblinear'))
-    ])
-
-    # Define the parameter grid for GridSearchCV
-    param_grid = {
-        'poly__degree': poly_orders,
-        'logreg__C': C_values
-    }
-
-    # Perform GridSearchCV to find the best parameters
-    grid_search = GridSearchCV(pipeline, param_grid, cv=5, scoring='accuracy', return_train_score=True)
-    grid_search.fit(X, y)
-
-    # Extract the best parameters and the corresponding score
-    best_params = grid_search.best_params_
-    best_score = grid_search.best_score_
-
-    print(f"Best parameters for week4_{index}.csv: {best_params}")
-    print(f"Best cross-validation score for week4_{index}.csv: {best_score:.4f}")
-
-    # Plotting cross-validation results
-    results = grid_search.cv_results_
-    mean_test_scores = results['mean_test_score']
-    std_test_scores = results['std_test_score']
-
     plt.figure(figsize=(10, 6))
-    for i, degree in enumerate(poly_orders):
-        mask = results['param_poly__degree'] == degree
-        plt.errorbar(C_values, mean_test_scores[mask], yerr=std_test_scores[mask], label=f'Degree {degree}')
-
-    plt.xscale('log')
-    plt.xlabel('C value (log scale)')
-    plt.ylabel('Mean cross-validation accuracy')
-    plt.title(f'Cross-validation accuracy for different polynomial degrees and C values (week4_{index}.csv)')
-    plt.legend()
-    plt.savefig(f'Images/cross_validation_results_week4_{index}.png')
-    plt.close()
-
-    # Train the final model with the best parameters
-    final_model = grid_search.best_estimator_
-    final_model.fit(X, y)
-
-    # Plot the decision boundary
-    xx, yy = np.meshgrid(np.linspace(X[:, 0].min() - 1, X[:, 0].max() + 1, 100),
-                         np.linspace(X[:, 1].min() - 1, X[:, 1].max() + 1, 100))
-    Z = final_model.predict(np.c_[xx.ravel(), yy.ravel()])
-    Z = Z.reshape(xx.shape)
-
-    plt.figure(figsize=(10, 6))
-    plt.contourf(xx, yy, Z, alpha=0.3)
     plt.scatter(X[:, 0], X[:, 1], c=y, edgecolors='k', marker='o')
-    plt.title(f'Decision boundary of the best model (week4_{index}.csv)')
+    plt.title(f'Scatter plot of the data (week4_{index}.csv)')
     plt.xlabel('Feature 1')
     plt.ylabel('Feature 2')
-    plt.savefig(f'Images/decision_boundary_week4_{index}.png')
+    plt.savefig(f'Images/scatter_plot_week4_{index}.png')
     plt.close()
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    logistic_regression.run_logistic_regression(X_train, X_test, y_train, y_test, index)
+
+    knn.run_knn(X_train, X_test, y_train, y_test, X, y, index)
+
+    run_baseline(y_train, y_test, index)
