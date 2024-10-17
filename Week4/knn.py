@@ -11,22 +11,6 @@ from collections import Counter
 from sklearn.pipeline import Pipeline
 
 def run_knn(X_train, X_test, y_train, y_test, X, y, index):
-    grid_search_knn = perform_grid_search_knn(X_train, y_train)
-    best_params_knn = grid_search_knn.best_params_
-    best_score_knn = grid_search_knn.best_score_
-    print(f"Best parameters for kNN (week4_{index}.csv): {best_params_knn}")
-    print(f"Best cross-validation score for kNN (week4_{index}.csv): {best_score_knn:.4f}")
-    final_knn_model = grid_search_knn.best_estimator_
-    final_knn_model.fit(X_train, y_train)
-    y_pred_knn = final_knn_model.predict(X_test)
-    cm_knn = confusion_matrix(y_test, y_pred_knn)
-    print(f"Confusion matrix for kNN (week4_{index}.csv):\n{cm_knn}")
-    plot_cross_validation_results(grid_search_knn, {'n_neighbors': list(range(1, 21))}, index, 'knn')
-    plot_decision_boundary(X, y, final_knn_model, index)
-    y_prob_knn = final_knn_model.predict_proba(X_test)[:, 1]
-    return y_prob_knn
-
-def perform_grid_search_knn(X_train, y_train):
     k_values = list(range(1, 21))
     knn = KNeighborsClassifier()
     param_grid = {
@@ -34,7 +18,22 @@ def perform_grid_search_knn(X_train, y_train):
     }
     grid_search = GridSearchCV(knn, param_grid, cv=5, scoring='accuracy', return_train_score=True)
     grid_search.fit(X_train, y_train)
-    return grid_search
+    best_params = grid_search.best_params_
+    best_score = grid_search.best_score_
+    print(f"Best parameters for kNN (week4_{index}.csv): {best_params}")
+    print(f"Best cross-validation score for kNN (week4_{index}.csv): {best_score:.4f}")
+    final_model = grid_search.best_estimator_
+    final_model.fit(X_train, y_train)
+    y_pred_knn = final_model.predict(X_test)
+    cm = confusion_matrix(y_test, y_pred_knn)
+    print(f"Confusion matrix for kNN (week4_{index}.csv):\n{cm}")
+    plot_cross_validation_results(grid_search, {'n_neighbors': list(range(1, 21))}, index, 'knn')
+    plot_decision_boundary(X, y, final_model, index)
+    y_prob = final_model.predict_proba(X_test)[:, 1]
+    return y_prob
+
+def perform_grid_search_knn(X_train, y_train):
+    
 
 def plot_cross_validation_results(grid_search, param_grid, index, model_name):
     results = grid_search.cv_results_
