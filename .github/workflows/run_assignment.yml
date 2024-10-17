@@ -6,9 +6,6 @@ on:
       assignment:
         description: 'Assignment to run'
         required: true
-      MODE:
-        description: 'Mode to run the assignment in'
-        required: true
 
 jobs:
   build:
