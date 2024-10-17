@@ -30,10 +30,7 @@ def run_knn(X_train, X_test, y_train, y_test, X, y, index):
     plot_cross_validation_results(grid_search, {'n_neighbors': list(range(1, 21))}, index, 'knn')
     plot_decision_boundary(X, y, final_model, index)
     y_prob = final_model.predict_proba(X_test)[:, 1]
-    return y_prob
-
-def perform_grid_search_knn(X_train, y_train):
-    
+    return y_prob    
 
 def plot_cross_validation_results(grid_search, param_grid, index, model_name):
     results = grid_search.cv_results_
