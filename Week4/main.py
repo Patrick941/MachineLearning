@@ -38,39 +38,37 @@ for index in range(1, 3):
     plt.title(f'Scatter plot of the data (week4_{index}.csv)')
     plt.xlabel('Feature 1')
     plt.ylabel('Feature 2')
-    plt.savefig(f'Images/scatter_plot_week4_{index}.png')
+    i_string = 'i' * index
+    plt.savefig(f'Images/{i_string}(a(1)).png')
     plt.close()
-
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-    # For Logistic Regression
     log_reg_param_grid = {'poly__degree': list(range(1, 6)), 'log_reg__C': np.logspace(-3, 3, 7)}
-    log_reg_runner = model_runner.ModelRunner('log_reg', log_reg_param_grid, use_pipeline=True)
+    log_reg_runner = model_runner.ModelRunner('log_reg', log_reg_param_grid, use_pipeline=True, i_string=i_string)
 
-    # Perform grid search, train the model, and evaluate
     log_reg_runner.perform_grid_search(X_train, y_train)
     log_reg_runner.train_model(X_train, y_train)
     y_prob_log_reg = log_reg_runner.evaluate_model(X_test, y_test)
 
-    # Plot decision boundary and cross-validation results
     log_reg_runner.plot_decision_boundary(X_train, y_train, index)
     log_reg_runner.plot_cross_validation_results(index)
 
-    # If needed, plot the ROC curve
     log_reg_runner.plot_roc_curve(y_test, y_prob_log_reg, index)
+        
+    log_reg_runner.plot_confusion_matrix(y_test, index)
 
-
-    # For kNN
     knn_param_grid = {'n_neighbors': list(range(1, 21))}
-    knn_runner = model_runner.ModelRunner('knn', knn_param_grid)
+    knn_runner = model_runner.ModelRunner('knn', knn_param_grid, i_string=i_string)
 
-    # Perform grid search, train the model, and evaluate
     knn_runner.perform_grid_search(X_train, y_train)
     knn_runner.train_model(X_train, y_train)
     y_prob_knn = knn_runner.evaluate_model(X_test, y_test)
 
-    # Plot decision boundary and cross-validation results
     knn_runner.plot_decision_boundary(X_train, y_train, index)
     knn_runner.plot_cross_validation_results(index)
+
+    knn_runner.plot_roc_curve(y_test, y_prob_knn, index)
+        
+    knn_runner.plot_confusion_matrix(y_test, index)
 
     run_baseline(y_train, y_test, index)
