@@ -11,6 +11,49 @@ date: "Date: 2024-07-10     Dataset1: 12-24-12-0     Dataset2: 12-12-12-0"
 
 ## I(a) 
 
+![](Images/i(a(1)).png)\
+![](Images/i(a(2)).png)\
+![](Images/i(a(3)).png)
+
+## I(b)
+
+![](Images/i(b(2)).png)\
+![](Images/i(b(3)).png)
+
+## I(c)
+
+![](Images/i(c).png)\
+
+## I(d)
+
+![](Images/i(d).png)\
+
+## I(e)
+
+## II(a)
+
+![](Images/ii(a(1)).png)\
+![](Images/ii(a(2)).png)\
+![](Images/ii(a(3)).png)
+
+## II(b)
+
+![](Images/ii(b(2)).png)\
+![](Images/ii(b(3)).png)
+
+## II(c)
+
+![](Images/ii(c).png)\
+
+## II(d)
+
+![](Images/ii(d).png)\
+
+## II(e)
+
+
+
+\clearpage
 
 ## Appendix
 
