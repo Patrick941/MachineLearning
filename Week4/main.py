@@ -9,8 +9,7 @@ import matplotlib.pyplot as plt
 import os
 from collections import Counter
 from sklearn.pipeline import Pipeline
-import knn
-import logistic_regression
+import model_runner as model_runner
 
 def run_baseline(y_train, y_test, index):
     most_frequent_class = Counter(y_train).most_common(1)[0][0]
@@ -44,8 +43,34 @@ for index in range(1, 3):
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-    logistic_regression.run_logistic_regression(X_train, X_test, y_train, y_test, index)
+    # For Logistic Regression
+    log_reg_param_grid = {'poly__degree': list(range(1, 6)), 'log_reg__C': np.logspace(-3, 3, 7)}
+    log_reg_runner = model_runner.ModelRunner('log_reg', log_reg_param_grid, use_pipeline=True)
 
-    knn.run_knn(X_train, X_test, y_train, y_test, X, y, index)
+    # Perform grid search, train the model, and evaluate
+    log_reg_runner.perform_grid_search(X_train, y_train)
+    log_reg_runner.train_model(X_train, y_train)
+    y_prob_log_reg = log_reg_runner.evaluate_model(X_test, y_test)
+
+    # Plot decision boundary and cross-validation results
+    log_reg_runner.plot_decision_boundary(X_train, y_train, index)
+    log_reg_runner.plot_cross_validation_results(index)
+
+    # If needed, plot the ROC curve
+    log_reg_runner.plot_roc_curve(y_test, y_prob_log_reg, index)
+
+
+    # For kNN
+    knn_param_grid = {'n_neighbors': list(range(1, 21))}
+    knn_runner = model_runner.ModelRunner('knn', knn_param_grid)
+
+    # Perform grid search, train the model, and evaluate
+    knn_runner.perform_grid_search(X_train, y_train)
+    knn_runner.train_model(X_train, y_train)
+    y_prob_knn = knn_runner.evaluate_model(X_test, y_test)
+
+    # Plot decision boundary and cross-validation results
+    knn_runner.plot_decision_boundary(X_train, y_train, index)
+    knn_runner.plot_cross_validation_results(index)
 
     run_baseline(y_train, y_test, index)
