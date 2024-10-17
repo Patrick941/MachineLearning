@@ -2,7 +2,7 @@
 geometry: margin=30mm
 title: "Assignment Week 4"
 author: "Student Name: Patrick Farmer       Student Number: 20501828"
-date: "Date: 2024-07-10     Dataset1: 12-24-12-0     Dataset2: 12-12-12-0"
+date: "Date: 18-10-2024    Dataset1: 12-24-12-0     Dataset2: 12-12-12-0"
 ---
 
 ![](https://www.tcd.ie/media/tcd/site-assets/images/tcd-logo.png)
@@ -13,27 +13,27 @@ date: "Date: 2024-07-10     Dataset1: 12-24-12-0     Dataset2: 12-12-12-0"
 
 First the data read and plotted onto a scatter plot as can be seen below in figure 1. We can see clearly from the data that the data is non linear. We can also see that it is likely that the data set would work best with a polynomial of order 2. We can confirm this with the use of cross validation.
 
-![Figure.1](Images/i(a(1)).png)\
+![Figure.1](Images/i(a(1)).png){ width=75% }\
 
 From the cross validation results we can see that the difference between the mean squared error for degree 1 and degree 2 is very large. This is due to the data being non linear. We can also see that the difference between the degrees 2, 3, 4 and 5 are negligible. This is due to the underlying structure of the data being simple enough to be accurately modelled by a polynomial of degree 2. \
 This graph also shows us that the value of C beyond 1 has very little effect on the mean squared error, so the code will select a value of approximately 1. \
 
-![Figure.2](Images/i(a(2)).png)\
+![Figure.2](Images/i(a(2)).png){ width=75% }\
 
 Now knowing that the order of the model is degree 2 we can train a logistic regression model on this and plot the decision boundary as can be seen in the graph below. As the cross-validation results showed the logistic regression model captures the underlying structure of the data well.
 
-![Figure.3](Images/i(a(3)).png)\
+![Figure.3](Images/i(a(3)).png){ width=75% }\
 
 ## I(b)
 
 The same process was repeated for the KNN model. Due to the simplicity of the data set we are likely to see good results for all values of K and a rather quick drop off in the mean square error as K increases.\
 We do get these predicted results and we see a minimum of MSE at K=8, K=10 and K=12. All of which would produce similar results. The code will select K=8 as the best parameter due to the negligible difference in MSE between the three values.\
 
-![Figure.4](Images/i(b(2)).png)\
+![Figure.4](Images/i(b(2)).png){ width=75% }\
 
 Next we can plot the decision boundary for the KNN model. We can see that the KNN model is accurate for this data. it does not actually capture any structure of the data though like logistic regression does. This does not matter if the test data is in the same range as the training data but if for some reason it were to go beyond [-1, 1] the accuracy would fall significantly. For the given data though the model is accurate.\
 
-![Figure.5](Images/i(b(3)).png)\
+![Figure.5](Images/i(b(3)).png){ width=75% }\
 
 ## I(c)
 
@@ -59,16 +59,28 @@ Taking the information from the ROC curves and confusion matrices we can see tha
 
 ## II(a)
 
-![Figure.14](Images/ii(a(1)).png){ width=100% }\
-![Figure.15](Images/ii(a(2)).png){ width=100% }\
-![Figure.16](Images/ii(a(3)).png){ width=100% }
+No additional code was needed to run the models on the second data set. The loop was simply incremented. We can from the initial scatter plot produced that the code is seemingly just random with no structure. We can also see that the class distribution of the data is very similar to the first data set so we will be likely to see the most frequent baseline predictor perform the same on this data.
+
+![Figure.14](Images/ii(a(1)).png){ width=75% }\
+
+The cross validation results from the logistic regression show very little change in the data as the value of C and power of the polynomial changes. This is because there is no underlying structure to capture and every iteration of the model is essential just the same as the dummy random classifier.
+
+![Figure.15](Images/ii(a(2)).png){ width=75% }\
+
+The decision boundary for the logistic regression model predicts that the entire data set is one class (The most frequent class). This is the exact same behaviour as the most frequent dummy classifier. 
+
+![Figure.16](Images/ii(a(3)).png){ width=75% }
 
 ## II(b)
 
-![Figure.17](Images/ii(b(2)).png){ width=100% }\
-![Figure.18](Images/ii(b(3)).png){ width=100% }\
+The KNN model also performs poorly on the data and will come to predict the most likely class in every instance like the logistic regression. However, as can be seen from the cross-validation plot it will take longer to converge to this solution as the value of k will have to become large enough to in every scenario have a majority of neighbours in the most frequent class. For smaller values of k the model will be much more random. If the data had even a small amount of clustering the model would perform better at a low value of k but since this is not true in this instance it will find its minimum MSE at a high value of k.
+
+![Figure.17](Images/ii(b(2)).png){ width=75% }\
+![Figure.18](Images/ii(b(3)).png){ width=75% }\
 
 ## II(c)
+
+From the confusion matrix we can see the proof of the already summised information. The logistic regression model, KNN model and the most frequent dummy classifier all perform the same because they have come to the same conclusion. The only model with a different confusion matrix is the random dummy classifier. Behind the scenes though the KNN model is the worst of the 3 as the amount of neighbours that are being taken into consideration the computation cost of this specific KNN model is very high.
 
 ![Figure.19](Images/ii(c(1)).png){ width=50% }
 ![Figure.20](Images/ii(c(2)).png){ width=50% }
@@ -76,6 +88,8 @@ Taking the information from the ROC curves and confusion matrices we can see tha
 ![Figure.22](Images/ii(c(4)).png){ width=50% }\
 
 ## II(d)
+
+The ROC curves below now show that for each of the classifiers the performance is very similar. The logistic regression model is the worst with the lowest AUC of 0.46, the KNN model is slightly better with 0.49 but both the dummy classifiers perform the best with an AUC of 0.5.
 
 ![Figure.23](Images/ii(d(1)).png){ width=50% }
 ![Figure.24](Images/ii(d(2)).png){ width=50% }
@@ -347,4 +361,68 @@ def plot_roc_curve(self, index):
 The code is generic and runs for other dataset automatically
 ```python
 for index in range(1, 3):
+```
+
+
+### Other (main)
+
+```python
+import numpy as np
+import pandas as pd
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import cross_val_score, GridSearchCV, train_test_split
+from sklearn.metrics import confusion_matrix, roc_curve, auc
+from sklearn.preprocessing import PolynomialFeatures
+import matplotlib.pyplot as plt
+import os
+from collections import Counter
+from sklearn.pipeline import Pipeline
+import model_runner
+
+os.makedirs('Images', exist_ok=True)
+script_dir = os.path.dirname(os.path.abspath(__file__))
+os.chdir(script_dir)
+
+for index in range(1, 3):
+    data = pd.read_csv(f'week4_{index}.csv', skiprows=1)
+    X = data.iloc[:, :-1].values
+    y = data.iloc[:, -1].values
+    plt.figure(figsize=(10, 6))
+    plt.scatter(X[:, 0], X[:, 1], c=y, edgecolors='k', marker='o')
+    plt.title(f'Scatter plot of the data (week4_{index}.csv)')
+    plt.xlabel('Feature 1')
+    plt.ylabel('Feature 2')
+    i_string = 'i' * index
+    plt.savefig(f'Images/{i_string}(a(1)).png')
+    plt.close()
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    log_reg_runner = model_runner.ModelRunner('log_reg', X_train, y_train, X_test, y_test, i_string=i_string)
+    log_reg_runner.train_model()
+    log_reg_runner.predict()
+    log_reg_runner.plot_confusion_matrix()
+    log_reg_runner.plot_decision_boundary(index)
+    log_reg_runner.plot_roc_curve(index)
+
+    knn_runner = model_runner.ModelRunner('knn', X_train, y_train, X_test, y_test, i_string=i_string)
+    knn_runner.train_model()
+    knn_runner.predict()
+    knn_runner.plot_confusion_matrix()
+    knn_runner.plot_decision_boundary(index)
+    knn_runner.plot_roc_curve(index)
+
+    baseline_runner = model_runner.ModelRunner('baseline_most_frequent', X_train, y_train, X_test, y_test, i_string=i_string)
+    baseline_runner.train_model()
+    baseline_runner.predict()
+    baseline_runner.plot_confusion_matrix()
+    baseline_runner.plot_decision_boundary(index)
+    baseline_runner.plot_roc_curve(index)
+    
+    baseline_runner = model_runner.ModelRunner('baseline_random', X_train, y_train, X_test, y_test, i_string=i_string)
+    baseline_runner.train_model()
+    baseline_runner.predict()
+    baseline_runner.plot_confusion_matrix()
+    baseline_runner.plot_decision_boundary(index)
+    baseline_runner.plot_roc_curve(index)
 ```

@@ -33,6 +33,8 @@ class ModelRunner:
 
         improvement_threshold = 0.01 
 
+        if self.model_name != 'log_reg':
+            poly_degrees = [1]
         for poly_degree in poly_degrees:
             poly = PolynomialFeatures(degree=poly_degree)
             X_poly = poly.fit_transform(self.X_train)
