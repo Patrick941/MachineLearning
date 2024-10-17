@@ -43,9 +43,17 @@ for index in range(1, 3):
     knn_runner.plot_decision_boundary(index)
     knn_runner.plot_roc_curve(index)
 
-    baseline_runner = model_runner.ModelRunner('baseline', X_train, y_train, X_test, y_test, i_string=i_string)
+    baseline_runner = model_runner.ModelRunner('baseline_most_frequent', X_train, y_train, X_test, y_test, i_string=i_string)
     baseline_runner.train_model()
     baseline_runner.predict()
     baseline_runner.plot_confusion_matrix()
     baseline_runner.plot_decision_boundary(index)
     baseline_runner.plot_roc_curve(index)
+    
+    baseline_runner = model_runner.ModelRunner('baseline_random', X_train, y_train, X_test, y_test, i_string=i_string)
+    baseline_runner.train_model()
+    baseline_runner.predict()
+    baseline_runner.plot_confusion_matrix()
+    baseline_runner.plot_decision_boundary(index)
+    baseline_runner.plot_roc_curve(index)
+

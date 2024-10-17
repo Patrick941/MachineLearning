@@ -59,16 +59,26 @@ class ModelRunner:
                         best_score = mean_score
                         best_model = model
                         best_params = {'poly_degree': poly_degree, 'n_neighbors': k_value}
-            elif self.model_name == 'baseline':
+            elif self.model_name == 'baseline_most_frequent':
                 model = DummyClassifier(strategy='most_frequent')
                 scores = cross_val_score(model, X_poly, self.y_train, cv=5, scoring='neg_mean_squared_error')
                 mean_score = -scores.mean()
-                cv_results.append((poly_degree, 'baseline', mean_score))
+                cv_results.append((poly_degree, 'most_frequent', mean_score))
 
                 if best_score - mean_score > improvement_threshold:
                     best_score = mean_score
                     best_model = model
                     best_params = {'poly_degree': poly_degree, 'strategy': 'most_frequent'}
+            elif self.model_name == 'baseline_random':
+                model = DummyClassifier(strategy='uniform')
+                scores = cross_val_score(model, X_poly, self.y_train, cv=5, scoring='neg_mean_squared_error')
+                mean_score = -scores.mean()
+                cv_results.append((poly_degree, 'random', mean_score))
+
+                if best_score - mean_score > improvement_threshold:
+                    best_score = mean_score
+                    best_model = model
+                    best_params = {'poly_degree': poly_degree, 'strategy': 'uniform'}
 
         plt.figure(figsize=(12, 8))
         for poly_degree in poly_degrees:
@@ -78,7 +88,7 @@ class ModelRunner:
             elif self.model_name == 'knn':
                 scores = [result[2] for result in cv_results if result[0] == poly_degree]
                 plt.plot(k_values, scores, label=f'Poly Degree {poly_degree}')
-            elif self.model_name == 'baseline':
+            elif self.model_name in ['baseline_most_frequent', 'baseline_random']:
                 scores = [result[2] for result in cv_results if result[0] == poly_degree]
                 plt.plot([0], scores, label=f'Poly Degree {poly_degree}', marker='o')
 
@@ -91,8 +101,6 @@ class ModelRunner:
             plt.savefig(f'Images/{self.i_string}(a(2)).png')
         elif self.model_name == 'knn':
             plt.savefig(f'Images/{self.i_string}(b(2)).png')
-        else:
-            plt.savefig(f'Images/{self.i_string}(baseline(2)).png')
         plt.close()
 
         self.best_params = best_params
@@ -104,8 +112,7 @@ class ModelRunner:
         poly = PolynomialFeatures(degree=self.best_params['poly_degree'])
         X_poly_test = poly.fit_transform(self.X_test)
         self.y_pred = self.final_model.predict(X_poly_test)
-        if self.model_name == 'log_reg':
-            self.y_prob = self.final_model.predict_proba(X_poly_test)[:, 1]
+        self.y_prob = self.final_model.predict_proba(X_poly_test)[:, 1]
 
     def plot_confusion_matrix(self):
         cm = confusion_matrix(self.y_test, self.y_pred)
@@ -132,8 +139,10 @@ class ModelRunner:
             plt.savefig(f'Images/{self.i_string}(c(1)).png')
         elif self.model_name == 'knn':
             plt.savefig(f'Images/{self.i_string}(c(2)).png')
-        else:
+        elif self.model_name == 'baseline_most_frequent':
             plt.savefig(f'Images/{self.i_string}(c(3)).png')
+        elif self.model_name == 'baseline_random':
+            plt.savefig(f'Images/{self.i_string}(c(4)).png')
         plt.close()
         
         print(f"Confusion matrix for {self.model_name}:\n{cm}")
@@ -156,8 +165,6 @@ class ModelRunner:
             plt.savefig(f'Images/{self.i_string}(a(3)).png')
         elif self.model_name == 'knn':
             plt.savefig(f'Images/{self.i_string}(b(3)).png')
-        else:
-            plt.savefig(f'Images/{self.i_string}(baseline(3)).png')
         plt.close()
 
     def plot_roc_curve(self, index):
@@ -176,6 +183,8 @@ class ModelRunner:
                 plt.savefig(f'Images/{self.i_string}(d(1)).png')
             elif self.model_name == 'knn':
                 plt.savefig(f'Images/{self.i_string}(d(2)).png')
-            else:
+            elif self.model_name == 'baseline_most_frequent':
                 plt.savefig(f'Images/{self.i_string}(d(3)).png')
+            elif self.model_name == 'baseline_random':
+                plt.savefig(f'Images/{self.i_string}(d(4)).png')
             plt.close()

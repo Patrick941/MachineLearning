@@ -1,7 +1,7 @@
 ---
 geometry: margin=30mm
 title: "Assignment Week 4"
-author: "Student Name: Patrick Farmer       Student Number: 20331828"
+author: "Student Name: Patrick Farmer       Student Number: 20501828"
 date: "Date: 2024-07-10     Dataset1: 12-24-12-0     Dataset2: 12-12-12-0"
 ---
 
@@ -22,7 +22,7 @@ This graph also shows us that the value of C beyond 1 has very little effect on 
 
 Now knowing that the order of the model is degree 2 we can train a logistic regression model on this and plot the decision boundary as can be seen in the graph below. As the cross-validation results showed the logistic regression model captures the underlying structure of the data well.
 
-![Figure.3](Images/i(a(3)).png)
+![Figure.3](Images/i(a(3)).png)\
 
 ## I(b)
 
@@ -33,40 +33,26 @@ We do get these predicted results and we see a minimum of MSE at K=8, K=10 and K
 
 Next we can plot the decision boundary for the KNN model. We can see that the KNN model is accurate for this data. it does not actually capture any structure of the data though like logistic regression does. This does not matter if the test data is in the same range as the training data but if for some reason it were to go beyond [-1, 1] the accuracy would fall significantly. For the given data though the model is accurate.\
 
-![Figure.5](Images/i(b(3)).png)
+![Figure.5](Images/i(b(3)).png)\
 
 ## I(c)
 
-![Figure.6](Images/i(c).png)\
+Next the confusion matrices were plotted for both models and for a dummy classifier alongside them. The test to training data split in this case was 20/80. We can see from this that the logistic regression model is marginally better than the KNN model (Only 1 more correct prediction). We can also see that the logistic regression model tends to predict false positives more often than false negatives as apposed to the KNN model which has an equal distribution of both. This is likely due to the logistic regression model capturing the underlying structure of the data and handling the cluster of data points at the top of the curve with positives and negatives overlapping differently to the KNN model. The most frequent dummy classifier is of course not ass accurate. It predicts true on all ocassions. This model being substantially worse shows that our models are not just selecting the most likely in all scenarios but are actually capturing the complexities of the data. We also see our random dummy classifier being worse again than the most frequent.
+
+![Figure.6](Images/i(c(1)).png){ width=50% }
+![Figure.7](Images/i(c(2)).png){ width=50% }
+![Figure.8](Images/i(c(3)).png){ width=50% }
+![Figure.9](Images/i(c(4)).png){ width=50% }\
 
 ## I(d)
 
-![Figure.7](Images/i(d(1)).png)\
-![Figure.8](Images/i(d(2)).png)
+![Figure.10](Images/i(d(1)).png){ width=50% }
+![Figure.11](Images/i(d(2)).png){ width=50% }
+![Figure.12](Images/i(d(3)).png){ width=50% }
+![Figure.13](Images/i(d(4)).png){ width=50% }\
 
 ## I(e)
 
-## II(a)
-
-![Figure.9](Images/ii(a(1)).png)\
-![Figure.10](Images/ii(a(2)).png)\
-![Figure.11](Images/ii(a(3)).png)
-
-## II(b)
-
-![Figure.12](Images/ii(b(2)).png)\
-![Figure.13](Images/ii(b(3)).png)
-
-## II(c)
-
-![Figure.14](Images/ii(c(1)).png)\
-![Figure.15](Images/ii(c(2)).png)
-
-## II(d)
-
-![Figure.16](Images/ii(d).png)\
-
-## II(e)
 
 
 
@@ -124,11 +110,13 @@ class ModelRunner:
         best_score = float('inf')
         best_model = None
         best_params = None
-        k_values = list(range(1, 21))
+        k_values = list(range(1, 41))
         C_values = np.logspace(-3, 3, 7)
         poly_degrees = list(range(1, 6))
         
         cv_results = []
+
+        improvement_threshold = 0.01 
 
         for poly_degree in poly_degrees:
             poly = PolynomialFeatures(degree=poly_degree)
@@ -141,7 +129,7 @@ class ModelRunner:
                     mean_score = -scores.mean()
                     cv_results.append((poly_degree, C_value, mean_score))
 
-                    if mean_score < best_score:
+                    if best_score - mean_score > improvement_threshold:
                         best_score = mean_score
                         best_model = model
                         best_params = {'poly_degree': poly_degree, 'C': C_value}
@@ -152,10 +140,30 @@ class ModelRunner:
                     mean_score = -scores.mean()
                     cv_results.append((poly_degree, k_value, mean_score))
 
-                    if mean_score < best_score:
+                    if best_score - mean_score > improvement_threshold:
                         best_score = mean_score
                         best_model = model
                         best_params = {'poly_degree': poly_degree, 'n_neighbors': k_value}
+            elif self.model_name == 'baseline_most_frequent':
+                model = DummyClassifier(strategy='most_frequent')
+                scores = cross_val_score(model, X_poly, self.y_train, cv=5, scoring='neg_mean_squared_error')
+                mean_score = -scores.mean()
+                cv_results.append((poly_degree, 'most_frequent', mean_score))
+
+                if best_score - mean_score > improvement_threshold:
+                    best_score = mean_score
+                    best_model = model
+                    best_params = {'poly_degree': poly_degree, 'strategy': 'most_frequent'}
+            elif self.model_name == 'baseline_random':
+                model = DummyClassifier(strategy='uniform')
+                scores = cross_val_score(model, X_poly, self.y_train, cv=5, scoring='neg_mean_squared_error')
+                mean_score = -scores.mean()
+                cv_results.append((poly_degree, 'random', mean_score))
+
+                if best_score - mean_score > improvement_threshold:
+                    best_score = mean_score
+                    best_model = model
+                    best_params = {'poly_degree': poly_degree, 'strategy': 'uniform'}
 
         plt.figure(figsize=(12, 8))
         for poly_degree in poly_degrees:
@@ -165,15 +173,18 @@ class ModelRunner:
             elif self.model_name == 'knn':
                 scores = [result[2] for result in cv_results if result[0] == poly_degree]
                 plt.plot(k_values, scores, label=f'Poly Degree {poly_degree}')
+            elif self.model_name in ['baseline_most_frequent', 'baseline_random']:
+                scores = [result[2] for result in cv_results if result[0] == poly_degree]
+                plt.plot([0], scores, label=f'Poly Degree {poly_degree}', marker='o')
 
-        plt.xlabel('C values' if self.model_name == 'log_reg' else 'k values')
+        plt.xlabel('C values' if self.model_name == 'log_reg' else 'k values' if self.model_name == 'knn' else 'Baseline')
         plt.ylabel('Mean Squared Error')
         plt.title(f'Cross-Validation Results for {self.model_name}')
         plt.legend()
         plt.xscale('log' if self.model_name == 'log_reg' else 'linear')
         if self.model_name == 'log_reg':
             plt.savefig(f'Images/{self.i_string}(a(2)).png')
-        else:
+        elif self.model_name == 'knn':
             plt.savefig(f'Images/{self.i_string}(b(2)).png')
         plt.close()
 
@@ -186,8 +197,7 @@ class ModelRunner:
         poly = PolynomialFeatures(degree=self.best_params['poly_degree'])
         X_poly_test = poly.fit_transform(self.X_test)
         self.y_pred = self.final_model.predict(X_poly_test)
-        if self.model_name == 'log_reg':
-            self.y_prob = self.final_model.predict_proba(X_poly_test)[:, 1]
+        self.y_prob = self.final_model.predict_proba(X_poly_test)[:, 1]
 
     def plot_decision_boundary(self, index):
         xx, yy = np.meshgrid(np.linspace(self.X_train[:, 0].min() - 1, self.X_train[:, 0].max() + 1, 100),
@@ -225,35 +235,55 @@ for index in range(1, 3):
 for index in range(1, 3):
     log_reg_runner.plot_confusion_matrix()
     knn_runner.plot_confusion_matrix()
+
+    baseline_runner = model_runner.ModelRunner('baseline_most_frequent', X_train, y_train, X_test, y_test, i_string=i_string)
+    baseline_runner.train_model()
+    baseline_runner.predict()
+    baseline_runner.plot_confusion_matrix()
+    baseline_runner.plot_decision_boundary(index)
+    baseline_runner.plot_roc_curve(index)
+    
+    baseline_runner = model_runner.ModelRunner('baseline_random', X_train, y_train, X_test, y_test, i_string=i_string)
+    baseline_runner.train_model()
+    baseline_runner.predict()
+    baseline_runner.plot_confusion_matrix()
+    baseline_runner.plot_decision_boundary(index)
+    baseline_runner.plot_roc_curve(index)
 ```
 
 ```python
 def plot_confusion_matrix(self):
-        cm = confusion_matrix(self.y_test, self.y_pred)
-        
-        plt.figure(figsize=(8, 6))
-        plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
-        plt.title(f'Confusion matrix for {self.model_name}')
-        plt.colorbar()
-        tick_marks = np.arange(len(np.unique(self.y_test)))
-        plt.xticks(tick_marks, tick_marks)
-        plt.yticks(tick_marks, tick_marks)
-        
-        fmt = 'd'
-        thresh = cm.max() / 2.
-        for i, j in np.ndindex(cm.shape):
-            plt.text(j, i, format(cm[i, j], fmt),
-                     ha="center", va="center",
-                     color="white" if cm[i, j] > thresh else "black")
-        
-        plt.ylabel('True label')
-        plt.xlabel('Predicted label')
-        plt.tight_layout()
-        plt.savefig(f'Images/{self.i_string}(c).png')
-        plt.close()
-        
-        print(f"Confusion matrix for {self.model_name}:\n{cm}")
-        return cm
+    cm = confusion_matrix(self.y_test, self.y_pred)
+    
+    plt.figure(figsize=(8, 6))
+    plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
+    plt.title(f'Confusion matrix for {self.model_name}')
+    plt.colorbar()
+    tick_marks = np.arange(len(np.unique(self.y_test)))
+    plt.xticks(tick_marks, tick_marks)
+    plt.yticks(tick_marks, tick_marks)
+    
+    fmt = 'd'
+    thresh = cm.max() / 2.
+    for i, j in np.ndindex(cm.shape):
+        plt.text(j, i, format(cm[i, j], fmt),
+                    ha="center", va="center",
+                    color="white" if cm[i, j] > thresh else "black")
+    
+    plt.ylabel('True label')
+    plt.xlabel('Predicted label')
+    plt.tight_layout()
+    if self.model_name == 'log_reg':
+        plt.savefig(f'Images/{self.i_string}(c(1)).png')
+    elif self.model_name == 'knn':
+        plt.savefig(f'Images/{self.i_string}(c(2)).png')
+    elif self.model_name == 'baseline_most_frequent':
+        plt.savefig(f'Images/{self.i_string}(c(3)).png')
+    elif self.model_name == 'baseline_random':
+        plt.savefig(f'Images/{self.i_string}(c(4)).png')
+    plt.close()
+    
+    return cm
 ```
 
 ### I(d)
@@ -266,19 +296,26 @@ for index in range(1, 3):
 
 ```python
 def plot_roc_curve(self, index):
-        if self.y_prob is not None:
-            fpr, tpr, _ = roc_curve(self.y_test, self.y_prob)
-            auc_score = auc(fpr, tpr)
+    if self.y_prob is not None:
+        fpr, tpr, _ = roc_curve(self.y_test, self.y_prob)
+        auc_score = auc(fpr, tpr)
 
-            plt.figure(figsize=(10, 6))
-            plt.plot(fpr, tpr, label=f'{self.model_name} (AUC = {auc_score:.2f})')
-            plt.plot([0, 1], [0, 1], 'k--')
-            plt.xlabel('False Positive Rate')
-            plt.ylabel('True Positive Rate')
-            plt.title(f'ROC Curve (week4_{index}.csv)')
-            plt.legend(loc='best')
-            plt.savefig(f'Images/{self.i_string}(d).png')
-            plt.close()
+        plt.figure(figsize=(10, 6))
+        plt.plot(fpr, tpr, label=f'{self.model_name} (AUC = {auc_score:.2f})')
+        plt.plot([0, 1], [0, 1], 'k--')
+        plt.xlabel('False Positive Rate')
+        plt.ylabel('True Positive Rate')
+        plt.title(f'ROC Curve (week4_{index}.csv)')
+        plt.legend(loc='best')
+        if self.model_name == 'log_reg':
+            plt.savefig(f'Images/{self.i_string}(d(1)).png')
+        elif self.model_name == 'knn':
+            plt.savefig(f'Images/{self.i_string}(d(2)).png')
+        elif self.model_name == 'baseline_most_frequent':
+            plt.savefig(f'Images/{self.i_string}(d(3)).png')
+        elif self.model_name == 'baseline_random':
+            plt.savefig(f'Images/{self.i_string}(d(4)).png')
+        plt.close()
 ```
 
 ### II(a)
