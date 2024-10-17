@@ -145,7 +145,6 @@ class ModelRunner:
             plt.savefig(f'Images/{self.i_string}(c(4)).png')
         plt.close()
         
-        print(f"Confusion matrix for {self.model_name}:\n{cm}")
         return cm
 
     def plot_decision_boundary(self, index):
@@ -168,23 +167,22 @@ class ModelRunner:
         plt.close()
 
     def plot_roc_curve(self, index):
-        if self.y_prob is not None:
-            fpr, tpr, _ = roc_curve(self.y_test, self.y_prob)
-            auc_score = auc(fpr, tpr)
+        fpr, tpr, _ = roc_curve(self.y_test, self.y_prob)
+        auc_score = auc(fpr, tpr)
 
-            plt.figure(figsize=(10, 6))
-            plt.plot(fpr, tpr, label=f'{self.model_name} (AUC = {auc_score:.2f})')
-            plt.plot([0, 1], [0, 1], 'k--')
-            plt.xlabel('False Positive Rate')
-            plt.ylabel('True Positive Rate')
-            plt.title(f'ROC Curve (week4_{index}.csv)')
-            plt.legend(loc='best')
-            if self.model_name == 'log_reg':
-                plt.savefig(f'Images/{self.i_string}(d(1)).png')
-            elif self.model_name == 'knn':
-                plt.savefig(f'Images/{self.i_string}(d(2)).png')
-            elif self.model_name == 'baseline_most_frequent':
-                plt.savefig(f'Images/{self.i_string}(d(3)).png')
-            elif self.model_name == 'baseline_random':
-                plt.savefig(f'Images/{self.i_string}(d(4)).png')
-            plt.close()
+        plt.figure(figsize=(10, 6))
+        plt.plot(fpr, tpr, label=f'{self.model_name} (AUC = {auc_score:.2f})')
+        plt.plot([0, 1], [0, 1], 'k--')
+        plt.xlabel('False Positive Rate')
+        plt.ylabel('True Positive Rate')
+        plt.title(f'ROC Curve (week4_{index}.csv)')
+        plt.legend(loc='best')
+        if self.model_name == 'log_reg':
+            plt.savefig(f'Images/{self.i_string}(d(1)).png')
+        elif self.model_name == 'knn':
+            plt.savefig(f'Images/{self.i_string}(d(2)).png')
+        elif self.model_name == 'baseline_most_frequent':
+            plt.savefig(f'Images/{self.i_string}(d(3)).png')
+        elif self.model_name == 'baseline_random':
+            plt.savefig(f'Images/{self.i_string}(d(4)).png')
+        plt.close()

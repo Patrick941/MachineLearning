@@ -46,6 +46,8 @@ Next the confusion matrices were plotted for both models and for a dummy classif
 
 ## I(d)
 
+Next the ROC curves were plotted. The KNN and logistic regression curves are very similar except for the ROC curve of the KNN converging faster originally but then logistic regression catches up and just about overtakes it. We can then also see that both the dummy classifiers are very innacurate.
+
 ![Figure.10](Images/i(d(1)).png){ width=50% }
 ![Figure.11](Images/i(d(2)).png){ width=50% }
 ![Figure.12](Images/i(d(3)).png){ width=50% }
@@ -53,8 +55,32 @@ Next the confusion matrices were plotted for both models and for a dummy classif
 
 ## I(e)
 
+Taking the information from the ROC curves and confusion matrices we can see that the logistic regression model and KNN model are very similar in performance but the logistic regression model is performing very slightly better as was commented on for both the ROC curve and the confusion matrix. The logistic regression model is also slightly more desireable as it manages to capture the underlying structure of the data. The KNN model is also very accurate but does not capture the structure of the data. Both of the models performed much better than the baseline models. This is shown in both the ROC curve and the confusion matrix and proves that the models are not just performing well due to the data being simple but because they are actually capturing the complexities of the data.
 
+## II(a)
 
+![Figure.14](Images/ii(a(1)).png){ width=100% }\
+![Figure.15](Images/ii(a(2)).png){ width=100% }\
+![Figure.16](Images/ii(a(3)).png){ width=100% }
+
+## II(b)
+
+![Figure.17](Images/ii(b(2)).png){ width=100% }\
+![Figure.18](Images/ii(b(3)).png){ width=100% }\
+
+## II(c)
+
+![Figure.19](Images/ii(c(1)).png){ width=50% }
+![Figure.20](Images/ii(c(2)).png){ width=50% }
+![Figure.21](Images/ii(c(3)).png){ width=50% }
+![Figure.22](Images/ii(c(4)).png){ width=50% }\
+
+## II(d)
+
+![Figure.23](Images/ii(d(1)).png){ width=50% }
+![Figure.24](Images/ii(d(2)).png){ width=50% }
+![Figure.25](Images/ii(d(3)).png){ width=50% }
+![Figure.26](Images/ii(d(4)).png){ width=50% }\
 
 \clearpage
 
@@ -296,26 +322,25 @@ for index in range(1, 3):
 
 ```python
 def plot_roc_curve(self, index):
-    if self.y_prob is not None:
-        fpr, tpr, _ = roc_curve(self.y_test, self.y_prob)
-        auc_score = auc(fpr, tpr)
+    fpr, tpr, _ = roc_curve(self.y_test, self.y_prob)
+    auc_score = auc(fpr, tpr)
 
-        plt.figure(figsize=(10, 6))
-        plt.plot(fpr, tpr, label=f'{self.model_name} (AUC = {auc_score:.2f})')
-        plt.plot([0, 1], [0, 1], 'k--')
-        plt.xlabel('False Positive Rate')
-        plt.ylabel('True Positive Rate')
-        plt.title(f'ROC Curve (week4_{index}.csv)')
-        plt.legend(loc='best')
-        if self.model_name == 'log_reg':
-            plt.savefig(f'Images/{self.i_string}(d(1)).png')
-        elif self.model_name == 'knn':
-            plt.savefig(f'Images/{self.i_string}(d(2)).png')
-        elif self.model_name == 'baseline_most_frequent':
-            plt.savefig(f'Images/{self.i_string}(d(3)).png')
-        elif self.model_name == 'baseline_random':
-            plt.savefig(f'Images/{self.i_string}(d(4)).png')
-        plt.close()
+    plt.figure(figsize=(10, 6))
+    plt.plot(fpr, tpr, label=f'{self.model_name} (AUC = {auc_score:.2f})')
+    plt.plot([0, 1], [0, 1], 'k--')
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title(f'ROC Curve (week4_{index}.csv)')
+    plt.legend(loc='best')
+    if self.model_name == 'log_reg':
+        plt.savefig(f'Images/{self.i_string}(d(1)).png')
+    elif self.model_name == 'knn':
+        plt.savefig(f'Images/{self.i_string}(d(2)).png')
+    elif self.model_name == 'baseline_most_frequent':
+        plt.savefig(f'Images/{self.i_string}(d(3)).png')
+    elif self.model_name == 'baseline_random':
+        plt.savefig(f'Images/{self.i_string}(d(4)).png')
+    plt.close()
 ```
 
 ### II(a)
