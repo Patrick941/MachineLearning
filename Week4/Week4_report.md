@@ -96,6 +96,10 @@ The ROC curves below now show that for each of the classifiers the performance i
 ![Figure.25](Images/ii(d(3)).png){ width=50% }
 ![Figure.26](Images/ii(d(4)).png){ width=50% }\
 
+## II(e)
+
+From the ROC curves and confusion matrices we can see that the logistic regression model, KNN model and the most frequent dummy classifier all perform mostly the same but with the frequent dummy classifier having the lowest cost. The random dummy classifier being the worst of the 4 as it cannot come to the scenario of predicting the most likely in each instance. During the writing of the code, I did experiment with setting the scoring function as f1 score thinking it might improve the accuracy of the KNN model at least but with this code it just very slightly decreased accuracy and did not improve the accuracy. For this dataset no model can really be recommended as this is a dataset with no structure and machine learning is not the correct approach to take.
+
 \clearpage
 
 ## Appendix
