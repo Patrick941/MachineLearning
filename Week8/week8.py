@@ -1,4 +1,8 @@
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '0'  # Log all messages
+os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true'
 
+import time
 import numpy as np
 import tensorflow as tf
 from tensorflow import keras
@@ -8,9 +12,19 @@ from keras.layers import Conv2D, MaxPooling2D, LeakyReLU
 from sklearn.metrics import confusion_matrix, classification_report
 from sklearn.utils import shuffle
 import matplotlib.pyplot as plt
+import model_runner
 plt.rc('font', size=18)
 plt.rcParams['figure.constrained_layout.use'] = True
 import sys
+
+# Check if ROCm is available
+if tf.test.is_built_with_rocm():
+	print("TensorFlow built with ROCm support")
+else:
+	print("TensorFlow not built with ROCm support")
+gpus = tf.config.experimental.list_physical_devices()
+print("Available GPUs: ", gpus)
+exit(0)
 
 # Model / data parameters
 num_classes = 10
@@ -18,8 +32,8 @@ input_shape = (32, 32, 3)
 
 # the data, split between train and test sets
 (x_train, y_train), (x_test, y_test) = keras.datasets.cifar10.load_data()
-n=5000
-x_train = x_train[1:n]; y_train=y_train[1:n]
+training_data_size=5000
+x_train = x_train[1:training_data_size]; y_train=y_train[1:training_data_size]
 #x_test=x_test[1:500]; y_test=y_test[1:500]
 
 # Scale images to the [0, 1] range
@@ -31,48 +45,70 @@ print("orig x_train shape:", x_train.shape)
 y_train = keras.utils.to_categorical(y_train, num_classes)
 y_test = keras.utils.to_categorical(y_test, num_classes)
 
+training_data_sizes = [5000, 10000, 20000, 40000]
 use_saved_model = False
-if use_saved_model:
-	model = keras.models.load_model("cifar.keras")
-else:
-	model = keras.Sequential()
-	model.add(Conv2D(16, (3,3), padding='same', input_shape=x_train.shape[1:],activation='relu'))
-	model.add(Conv2D(16, (3,3), strides=(2,2), padding='same', activation='relu'))
-	model.add(Conv2D(32, (3,3), padding='same', activation='relu'))
-	model.add(Conv2D(32, (3,3), strides=(2,2), padding='same', activation='relu'))
-	model.add(Dropout(0.5))
-	model.add(Flatten())
-	model.add(Dense(num_classes, activation='softmax',kernel_regularizer=regularizers.l1(0.0001)))
-	model.compile(loss="categorical_crossentropy", optimizer='adam', metrics=["accuracy"])
-	model.summary()
 
-	batch_size = 128
-	epochs = 20
-	history = model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs, validation_split=0.1)
-	model.save("cifar.keras")
-	plt.subplot(211)
-	plt.plot(history.history['accuracy'])
-	plt.plot(history.history['val_accuracy'])
-	plt.title('model accuracy')
-	plt.ylabel('accuracy')
-	plt.xlabel('epoch')
-	plt.legend(['train', 'val'], loc='upper left')
-	plt.subplot(212)
-	plt.plot(history.history['loss'])
-	plt.plot(history.history['val_loss'])
-	plt.title('model loss')
-	plt.ylabel('loss'); plt.xlabel('epoch')
-	plt.legend(['train', 'val'], loc='upper left')
-	plt.savefig("Images/cifar.png")
+best_model = None
+best_results = model_runner.Results(0, 0, 0, 0)
 
-preds = model.predict(x_train)
-y_pred = np.argmax(preds, axis=1)
-y_train1 = np.argmax(y_train, axis=1)
-print(classification_report(y_train1, y_pred))
-print(confusion_matrix(y_train1,y_pred))
+for training_data_size in training_data_sizes:
+	if training_data_size == 5000:
+		regularisation_sizes = [0.0001, 0.001, 0.01, 0.1, 0, 1]
+	else:
+		regularisation_sizes = [0.001]
+	for regularisation_size in regularisation_sizes:
+		if use_saved_model:
+			model = keras.models.load_model("cifar.keras")
+		else:
+			x_train_subset = x_train[:training_data_size]
+			y_train_subset = y_train[:training_data_size]
+   
+			# model_run = model_runner.ModelRunner(x_train_subset, y_train_subset, x_test, y_test, num_classes, regularisation_size, "strides")
+			# model_run.train_and_evaluate(training_data_size)
+			# model_results = model_run.results
+			# print("\033[93mStrides Model Results:\033[0m", model_results)
+			# if (model_results.validation_accuracy > best_results.validation_accuracy):
+			# 	best_results = model_results
+			# 	best_model = model_run.model
+			# 
+			# model_run = model_runner.ModelRunner(x_train_subset, y_train_subset, x_test, y_test, num_classes, regularisation_size, "pooling")
+			# model_run.train_and_evaluate(training_data_size)
+			# model_results = model_run.results
+			# print("\033[93mPooling Model Results:\033[0m", model_results)
+			# if (model_results.validation_accuracy > best_results.validation_accuracy):
+			# 	best_results = model_results
+			# 	best_model = model_run.model
+   			# 
+			# model_run = model_runner.ModelRunner(x_train_subset, y_train_subset, x_test, y_test, num_classes, regularisation_size, "strides")
+			# model_run.build_advanced_model()
+			# model_run.train_and_evaluate(training_data_size)
+			# model_results = model_run.results
+			# print("\033[93mAdvanced Model Results:\033[0m", model_results)
+			# if (model_results.validation_accuracy > best_results.validation_accuracy):
+			# 	best_results = model_results
+			# 	best_model = model_run.model
+   
+			model_run = model_runner.ModelRunner(x_train_subset, y_train_subset, x_test, y_test, num_classes, regularisation_size, "strides")
+			model_run.build_custom_model()
+			model_run.train_and_evaluate(training_data_size)
+			model_results = model_run.results
+			print("\033[93mCustom Model Results:\033[0m", model_results)
+			if (model_results.validation_accuracy > best_results.validation_accuracy):
+				best_results = model_results
+				best_model = model_run.model
+    
+print("\033[93mBest Model Results:\033[0m", best_results)
+   
 
-preds = model.predict(x_test)
-y_pred = np.argmax(preds, axis=1)
-y_test1 = np.argmax(y_test, axis=1)
-print(classification_report(y_test1, y_pred))
-print(confusion_matrix(y_test1,y_pred))
+
+# preds = model.predict(x_train)
+# y_pred = np.argmax(preds, axis=1)
+# y_train1 = np.argmax(y_train, axis=1)
+# print(classification_report(y_train1, y_pred))
+# print(confusion_matrix(y_train1,y_pred))
+# 
+# preds = model.predict(x_test)
+# y_pred = np.argmax(preds, axis=1)
+# y_test1 = np.argmax(y_test, axis=1)
+# print(classification_report(y_test1, y_pred))
+# print(confusion_matrix(y_test1,y_pred))
