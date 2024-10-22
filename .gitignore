@@ -1,3 +1,4 @@
 *.png
 mlVenv
 .vscode
+*/__pycache__/
