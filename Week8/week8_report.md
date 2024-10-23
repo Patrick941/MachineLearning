@@ -10,8 +10,24 @@ date: "Date: 23-10-2024
 \clearpage
 
 ## I(a)
+I began the assignment by implementing a function that convolves a an input array with a kernel and returns the result. The kernel is setup to be a argument to the function. The kernel is setup to iterate through the input array (image) from left to right and top to bottom all the while applying the kernel and saving the output to another array which is eventually returned. The function also does not perform any sort of padding which means that the output array will be smaller than the input array. If the same image is convolved a number of times there may be significant loss of information.
 
 ## I(b)
+This section will implement the above function on an image. The image which I selected was the first I found being my desktop background. The two kernels implemented are shown below: (The pluses are just for formatting) 
+$$
+[-1, -1, -1]\\
+[-1, +8, -1]\\
+[-1, -1, -1]
+$$
+$$
+[+0, -1, +0]\\
+[-1, +8, -1]\\
+[+0, -1, +0]
+$$
+The input image, output image for kernel 1 and output image for kernel 2 are shown below respectively:\
+![alt text](Images/original.png) { width=50% }
+![alt text](Images/result1.png) { width=50% }
+![alt text](Images/result2.png){ width=50% }
 
 ## II(a)
 
@@ -33,7 +49,9 @@ date: "Date: 23-10-2024
 
 ### I(a)
 ```python
-def convolve2d(input_array, kernel):
+import numpy as np
+
+def convolve(input_array, kernel):
     n = input_array.shape[0]
     k = kernel.shape[0]
     output_size = n - k + 1
@@ -41,9 +59,13 @@ def convolve2d(input_array, kernel):
 
     for i in range(output_size):
         for j in range(output_size):
-            output_array[i, j] = np.sum(input_array[i:i+k, j:j+k] * kernel)
+            sub_array = input_array[i:i+k, j:j+k]
+            product = sub_array * kernel
+            sum_product = np.sum(product)
+            output_array[i, j] = sum_product
     
     return output_array
+
 ```
 
 ### I(b)
@@ -69,22 +91,26 @@ new_width = int((new_height / height) * width)
 im = im.resize((new_width, new_height), Image.LANCZOS)
 rgb = np.array(im.convert('RGB'))
 
+images_folder = os.path.expanduser('Images')
+os.makedirs(images_folder, exist_ok=True)
+resized_image_path = os.path.join(images_folder, 'original.png')
+im.save(resized_image_path)
+
 r = rgb[:, :, 0]
 
 kernel1 = np.array([[-1, -1, -1], [-1, 8, -1], [-1, -1, -1]])
 kernel2 = np.array([[0, -1, 0], [-1, 8, -1], [0, -1, 0]])
 
-result1 = convolution.convolve2d(r, kernel1)
-result2 = convolution.convolve2d(r, kernel2)
-
-images_folder = os.path.expanduser('Images')
-os.makedirs(images_folder, exist_ok=True)
+result1 = convolution.convolve(r, kernel1)
+result2 = convolution.convolve(r, kernel2)
 
 result1_image_path = os.path.join(images_folder, 'result1.png')
 result2_image_path = os.path.join(images_folder, 'result2.png')
 
 Image.fromarray(np.uint8(result1)).save(result1_image_path)
 Image.fromarray(np.uint8(result2)).save(result2_image_path)
+
+week8.run_models()
 ```
 
 ### II(a)

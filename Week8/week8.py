@@ -59,7 +59,7 @@ def run_models():
 				model_run.train_and_evaluate(training_data_size)
 				model_results = model_run.results
 				print("\033[93mStrides Model Results:\033[0m", model_results)
-				if (model_results.validation_accuracy > best_results.validation_accuracy):
+				if (model_results.test_accuracy > best_results.test_accuracy):
 					best_results = model_results
 					best_model = model_run.model
 					best_model_description = "Strides_" + str(training_data_size) + "_" + str(regularisation_size)
@@ -68,7 +68,7 @@ def run_models():
 				model_run.train_and_evaluate(training_data_size)
 				model_results = model_run.results
 				print("\033[93mPooling Model Results:\033[0m", model_results)
-				if (model_results.validation_accuracy > best_results.validation_accuracy):
+				if (model_results.test_accuracy > best_results.test_accuracy):
 					best_results = model_results
 					best_model = model_run.model
 					best_model_description = "Pooling_" + str(training_data_size) + "_" + str(regularisation_size)
@@ -78,7 +78,7 @@ def run_models():
 				model_run.train_and_evaluate(training_data_size)
 				model_results = model_run.results
 				print("\033[93mAdvanced Model Results:\033[0m", model_results)
-				if (model_results.validation_accuracy > best_results.validation_accuracy):
+				if (model_results.test_accuracy > best_results.test_accuracy):
 					best_results = model_results
 					best_model = model_run.model
 					best_model_description = "Advanced_" + str(training_data_size) + "_" + str(regularisation_size)

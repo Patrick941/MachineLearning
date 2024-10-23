@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def convolve2d(input_array, kernel):
+def convolve(input_array, kernel):
     n = input_array.shape[0]
     k = kernel.shape[0]
     output_size = n - k + 1
@@ -9,7 +9,10 @@ def convolve2d(input_array, kernel):
 
     for i in range(output_size):
         for j in range(output_size):
-            output_array[i, j] = np.sum(input_array[i:i+k, j:j+k] * kernel)
+            sub_array = input_array[i:i+k, j:j+k]
+            product = sub_array * kernel
+            sum_product = np.sum(product)
+            output_array[i, j] = sum_product
     
     return output_array
 
