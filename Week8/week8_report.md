@@ -42,8 +42,14 @@ The model is then flattened into a 2d array. Finally a dense layer is applied wi
 The batch size is 128 and the model is trained for 20 epochs.
 
 ## II(b)(i)
+The model when run with 5000 data points does get an accuracy close to 48% on the test data. In this can 51%. The training data performs much better with 63%. The model is overfitting but there is also few improvements to be made by increasing regularisation, the data set would need to be larger for more substantial improvements.\
+The amount of parameters in this mode is 37,146 parameters and then 74,294 optimiser parameters. The layer with the largest parameter count is the dense layer with 20,490 parameters.\
+When comparing against a baseline classifier that simply predicts the most common class the model is performing much better. The baseline classifier has an accuracy of 10% which means that the dataset is balanced amongst the classes otherwise the accuracy of baseline would be higher than 100%/10.
 
 ## II(b)(ii)
+The validation accuracy and training accuracy of the model can be plotted over its epochs along with the loss of the model. This is shown in the below graph:\
+![](Images/cifar_5000_0.0001_strides.png)\
+As already stated by the difference in the training and validation accuracy we can see that this model is overfitting. From the graph we can tell this because the line for the training accuracy and validation accuracy begin to diverge from one another before the end of the training. We can also see it from the loss graph because the training loss continues to decrease while the validation loss becomes stagnant.
 
 ## II(b)(iii)
 
@@ -139,6 +145,16 @@ model.summary()
 batch_size = 128
 epochs = 20
 history = model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs, validation_split=0.1)
+```
+### II(b)(i)
+```python
+class_counts = np.bincount(np.argmax(y_train, axis=1))
+most_common_class = np.argmax(class_counts)
+y_pred_baseline = np.full(y_test.shape[0], most_common_class)
+y_pred_baseline = keras.utils.to_categorical(y_pred_baseline, num_classes)
+
+baseline_accuracy = np.mean(np.argmax(y_test, axis=1) == np.argmax(y_pred_baseline, axis=1)) * 100
+print("\033[93mBaseline Classifier Accuracy:\033[0m {:.2f}%".format(baseline_accuracy))
 ```
 
 ### II(b)(iii)

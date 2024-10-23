@@ -62,7 +62,7 @@ class ModelRunner:
 
     def train_and_evaluate(self, training_data_size):
         start_time = time.time()
-        history = self.model.fit(self.x_train, self.y_train, batch_size=128, epochs=self.epochs, validation_split=0.1)
+        history = self.model.fit(self.x_train, self.y_train, batch_size=128, epochs=self.epochs, validation_split=0.1, verbose=0)
         end_time = time.time()
 
         training_time = end_time - start_time
