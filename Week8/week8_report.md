@@ -2,7 +2,7 @@
 geometry: margin=30mm
 title: "Assignment Week 8"
 author: "Student Name: Patrick Farmer       Student Number: 20501828"
-date: "Date: 23-10-2024
+date: "Date: 23-10-2024"
 ---
 
 ![](https://www.tcd.ie/media/tcd/site-assets/images/tcd-logo.png)
@@ -13,23 +13,33 @@ date: "Date: 23-10-2024
 I began the assignment by implementing a function that convolves a an input array with a kernel and returns the result. The kernel is setup to be a argument to the function. The kernel is setup to iterate through the input array (image) from left to right and top to bottom all the while applying the kernel and saving the output to another array which is eventually returned. The function also does not perform any sort of padding which means that the output array will be smaller than the input array. If the same image is convolved a number of times there may be significant loss of information.
 
 ## I(b)
-This section will implement the above function on an image. The image which I selected was the first I found being my desktop background. The two kernels implemented are shown below: (The pluses are just for formatting) 
+This section will implement the above function on an image. The image which I selected was the first I found being my desktop background. The Image is first resized to 200x200 and then loaded as three RGB arrays then only the red channel taken. The two kernels implemented are shown below:
 $$
-[-1, -1, -1]\\
-[-1, +8, -1]\\
-[-1, -1, -1]
+\begin{bmatrix}
+-1 & -1 & -1 \\
+-1 & 8 & -1 \\
+-1 & -1 & -1
+\end{bmatrix}
 $$
 $$
-[+0, -1, +0]\\
-[-1, +8, -1]\\
-[+0, -1, +0]
+\begin{bmatrix}
+0 & -1 & 0 \\
+-1 & 8 & -1 \\
+0 & -1 & 0
+\end{bmatrix}
 $$
-The input image, output image for kernel 1 and output image for kernel 2 are shown below respectively:\
-![alt text](Images/original.png) { width=50% }
-![alt text](Images/result1.png) { width=50% }
-![alt text](Images/result2.png){ width=50% }
+The input image, output image for kernel 1 and output image for kernel 2 are shown below respectively:
+![alt text](Images/original.png){ width=50% }
+![alt text](Images/result1.png){ width=50% }
+![alt text](Images/result2.png){ width=50% }\
+The first image appears to show an edge image meaning that the kernel is an edge filter.\
+The second image appears to show a sharpened image as can be seen by the increase in contrast between edges but also the overemphasis of noise. This means that the kernel is a sharpening filter.
 
 ## II(a)
+The convolutional network architecture consists of four convolution layers with ReLU activation. Where the first two layers have 16 filters each while the other two have 32 filters each. The kernel size does not change between layers all of them have a 3x3 kernel size, with padding being used which means that after convolutional the original image size is recovered by mirroring the outermost neighbour pixel. The second and fourth layers implement a stride of 2x2 which represents how far across the image the kernel is moved before it is applied.
+The regularisation that is used by this model is first a dropout layer of 0.5, this means that for each epoch half of the neurons will be shut off so that the model does not just learn a couple 'paths' to make it's decision. The second form of regularisation used is L1 regularisation with a value of 0.0001 which adds a penalty to the loss function for large weights. This is used to prevent overfitting.\
+The model is then flattened into a 2d array. Finally a dense layer is applied with a softmax activation function. Each neuron is connected to every neuron in the previous layer. The amount of neurons matches the amount of output classes which in this case is 10. The softmax function is used to convert the output of the model into a probability distribution.\
+The batch size is 128 and the model is trained for 20 epochs.
 
 ## II(b)(i)
 
