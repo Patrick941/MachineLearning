@@ -17,14 +17,6 @@ plt.rc('font', size=18)
 plt.rcParams['figure.constrained_layout.use'] = True
 import sys
 
-# Check if ROCm is available
-if tf.test.is_built_with_rocm():
-	print("TensorFlow built with ROCm support")
-else:
-	print("TensorFlow not built with ROCm support")
-gpus = tf.config.experimental.list_physical_devices()
-print("Available GPUs: ", gpus)
-exit(0)
 
 # Model / data parameters
 num_classes = 10
@@ -63,36 +55,27 @@ for training_data_size in training_data_sizes:
 			x_train_subset = x_train[:training_data_size]
 			y_train_subset = y_train[:training_data_size]
    
-			# model_run = model_runner.ModelRunner(x_train_subset, y_train_subset, x_test, y_test, num_classes, regularisation_size, "strides")
-			# model_run.train_and_evaluate(training_data_size)
-			# model_results = model_run.results
-			# print("\033[93mStrides Model Results:\033[0m", model_results)
-			# if (model_results.validation_accuracy > best_results.validation_accuracy):
-			# 	best_results = model_results
-			# 	best_model = model_run.model
-			# 
-			# model_run = model_runner.ModelRunner(x_train_subset, y_train_subset, x_test, y_test, num_classes, regularisation_size, "pooling")
-			# model_run.train_and_evaluate(training_data_size)
-			# model_results = model_run.results
-			# print("\033[93mPooling Model Results:\033[0m", model_results)
-			# if (model_results.validation_accuracy > best_results.validation_accuracy):
-			# 	best_results = model_results
-			# 	best_model = model_run.model
-   			# 
-			# model_run = model_runner.ModelRunner(x_train_subset, y_train_subset, x_test, y_test, num_classes, regularisation_size, "strides")
-			# model_run.build_advanced_model()
-			# model_run.train_and_evaluate(training_data_size)
-			# model_results = model_run.results
-			# print("\033[93mAdvanced Model Results:\033[0m", model_results)
-			# if (model_results.validation_accuracy > best_results.validation_accuracy):
-			# 	best_results = model_results
-			# 	best_model = model_run.model
-   
 			model_run = model_runner.ModelRunner(x_train_subset, y_train_subset, x_test, y_test, num_classes, regularisation_size, "strides")
-			model_run.build_custom_model()
 			model_run.train_and_evaluate(training_data_size)
 			model_results = model_run.results
-			print("\033[93mCustom Model Results:\033[0m", model_results)
+			print("\033[93mStrides Model Results:\033[0m", model_results)
+			if (model_results.validation_accuracy > best_results.validation_accuracy):
+				best_results = model_results
+				best_model = model_run.model
+			
+			model_run = model_runner.ModelRunner(x_train_subset, y_train_subset, x_test, y_test, num_classes, regularisation_size, "pooling")
+			model_run.train_and_evaluate(training_data_size)
+			model_results = model_run.results
+			print("\033[93mPooling Model Results:\033[0m", model_results)
+			if (model_results.validation_accuracy > best_results.validation_accuracy):
+				best_results = model_results
+				best_model = model_run.model
+   			
+			model_run = model_runner.ModelRunner(x_train_subset, y_train_subset, x_test, y_test, num_classes, regularisation_size, "strides")
+			model_run.build_advanced_model()
+			model_run.train_and_evaluate(training_data_size)
+			model_results = model_run.results
+			print("\033[93mAdvanced Model Results:\033[0m", model_results)
 			if (model_results.validation_accuracy > best_results.validation_accuracy):
 				best_results = model_results
 				best_model = model_run.model

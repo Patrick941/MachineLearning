@@ -58,36 +58,6 @@ class ModelRunner:
         model.add(Dense(self.num_classes, activation='softmax', kernel_regularizer=regularizers.l1(0.0001)))
         model.compile(loss="categorical_crossentropy", optimizer='adam', metrics=["accuracy"])
         self.model = model
-        
-    def build_custom_model(self):
-        model = Sequential()
-        model.add(Conv2D(64, (3, 3), padding='same', input_shape=self.x_train.shape[1:], activation='relu'))
-        model.add(Conv2D(64, (3, 3), padding='same', activation='relu'))
-        model.add(MaxPooling2D(pool_size=(2, 2)))
-        model.add(Dropout(0.25))
-
-        model.add(Conv2D(128, (3, 3), padding='same', activation='relu'))
-        model.add(Conv2D(128, (3, 3), padding='same', activation='relu'))
-        model.add(MaxPooling2D(pool_size=(2, 2)))
-        model.add(Dropout(0.25))
-
-        model.add(Conv2D(256, (3, 3), padding='same', activation='relu'))
-        model.add(Conv2D(256, (3, 3), padding='same', activation='relu'))
-        model.add(MaxPooling2D(pool_size=(2, 2)))
-        model.add(Dropout(0.25))
-
-        model.add(Conv2D(512, (3, 3), padding='same', activation='relu'))
-        model.add(Conv2D(512, (3, 3), padding='same', activation='relu'))
-        model.add(MaxPooling2D(pool_size=(2, 2)))
-        model.add(Dropout(0.25))
-
-        model.add(Flatten())
-        model.add(Dense(1024, activation='relu'))
-        model.add(Dropout(0.5))
-        model.add(Dense(self.num_classes, activation='softmax', kernel_regularizer=regularizers.l1(0.0001)))
-
-        model.compile(loss="categorical_crossentropy", optimizer='adam', metrics=["accuracy"])
-        self.model = model
 
     def train_and_evaluate(self, training_data_size):
         x_train_subset = self.x_train[:training_data_size]
