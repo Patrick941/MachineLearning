@@ -2,6 +2,7 @@ import convolution
 from PIL import Image
 import numpy as np
 import os
+import week8
 
 downloads_folder = os.path.expanduser('~/Downloads')
 image_files = [f for f in os.listdir(downloads_folder) if f.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.gif'))]
@@ -34,3 +35,5 @@ result2_image_path = os.path.join(images_folder, 'result2.png')
 
 Image.fromarray(np.uint8(result1)).save(result1_image_path)
 Image.fromarray(np.uint8(result2)).save(result2_image_path)
+
+week8.run_models()
