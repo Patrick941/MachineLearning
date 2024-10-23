@@ -63,12 +63,34 @@ The data shown in the table above shows that as the training data size increases
 As the training data size increases the training time also predictably increases. In this case the training was done on a CPU so all of the training times are long. We can see that the training time for each doubling of the training data size is between 75% and 100% longer.\
 The graphs below show the same data as the table above, we can see that the accuracy increases with the training data size as does the effects of overfitting lessen.\
 
-![](Images/cifar_5000_0.0001_advanced.png){ width=50% }
-![](Images/cifar_10000_0.0001_advanced.png){ width=50% }\
-![](Images/cifar_20000_0.0001_advanced.png){ width=50% }
-![](Images/cifar_40000_0.0001_advanced.png){ width=50% }\
+![](Images/cifar_5000_0.0001_strides.png){ width=50% }
+![](Images/cifar_10000_0.0001_strides.png){ width=50% }\
+![](Images/cifar_20000_0.0001_strides.png){ width=50% }
+![](Images/cifar_40000_0.0001_strides.png){ width=50% }\
 
 ## II(b)(iv)
+
+| Regularisation Size | Training Time (s) | Train Accuracy | Test Accuracy | Validation Accuracy |
+|---------------------|-------------------|----------------|---------------|---------------------|
+| 0.0001              | 4.06              | 0.60           | 0.49          | 0.48                |
+| 0.001               | 3.92              | 0.57           | 0.48          | 0.48                |
+| 0.01                | 3.90              | 0.46           | 0.43          | 0.41                |
+| 0.1                 | 4.07              | 0.37           | 0.35          | 0.39                |
+| 0                   | 3.89              | 0.61           | 0.49          | 0.49                |
+| 1                   | 3.88              | 0.22           | 0.21          | 0.21                |
+
+
+The L1 regularisation limits the change in the weights of the model from epoch to epoch. This is done by adding a penalty to the loss function for large weights. The regularisation weight is the size of the penalty applied. This prevents one feature from dominating the model and overfitting which makes the model better at generalising. It will however also slow down the training of the model as the model is not able to learn as quickly.\
+Up until now the weight of the regularisation was kept constant at 0.0001. In this section the regularisation weight is varied with a set 5000 training data size. We can see that with the increase in regularisation the training accuracy decreases substantially. The validation accuracy does also decrease but not at the same rate. This is because the model is overfitting less and as can be seen from the graph the validation and training accuracy follow the same trend for the higher values of regularisation. 0 is an exception to this as it means that no regularisation is applied, that it why its results are so similar to 0.0001 as this is where the regularisation is the most modest and closest to not being applied.\
+We can see this in the below plots as the two trends of validation and training accuracy and loss are very close for the higher values of regularisation but begin to diverge quickly for the lower values of regularisation.\
+We can see in this case there is little benefit to increasing the regularisation weight as there is just simply not enough data to achieve a much more accurate model as the models seen in the previous section.
+
+![](Images/cifar_5000_0.0001_strides.png){ width=50% }
+![](Images/cifar_5000_0.001_strides.png){ width=50% }\
+![](Images/cifar_5000_0.01_strides.png){ width=50% }
+![](Images/cifar_5000_0.1_strides.png){ width=50% }\
+![](Images/cifar_5000_0.0_strides.png){ width=50% }
+![](Images/cifar_5000_1.0_strides.png){ width=50% }\
 
 ## II(c)(i)
 
