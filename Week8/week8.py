@@ -1,5 +1,5 @@
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '0'  # Log all messages
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true'
 
 import time
@@ -74,6 +74,8 @@ def run_models():
 					best_results = model_results
 					best_model = model_run.model
 					best_model_description = "Pooling_" + str(training_data_size) + "_" + str(regularisation_size)
+				if (training_data_size == 5000 and regularisation_size == 0.0001):
+					model_run.model.summary()
 				
 				model_run = model_runner.ModelRunner(x_train_subset, y_train_subset, x_test, y_test, num_classes, regularisation_size, "advanced", 70)
 				model_run.build_advanced_model()

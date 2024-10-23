@@ -83,7 +83,7 @@ The graphs below show the same data as the table above, we can see that the accu
 The L1 regularisation limits the change in the weights of the model from epoch to epoch. This is done by adding a penalty to the loss function for large weights. The regularisation weight is the size of the penalty applied. This prevents one feature from dominating the model and overfitting which makes the model better at generalising. It will however also slow down the training of the model as the model is not able to learn as quickly.\
 Up until now the weight of the regularisation was kept constant at 0.0001. In this section the regularisation weight is varied with a set 5000 training data size. We can see that with the increase in regularisation the training accuracy decreases substantially. The validation accuracy does also decrease but not at the same rate. This is because the model is overfitting less and as can be seen from the graph the validation and training accuracy follow the same trend for the higher values of regularisation. 0 is an exception to this as it means that no regularisation is applied, that it why its results are so similar to 0.0001 as this is where the regularisation is the most modest and closest to not being applied.\
 We can see this in the below plots as the two trends of validation and training accuracy and loss are very close for the higher values of regularisation but begin to diverge quickly for the lower values of regularisation.\
-We can see in this case there is little benefit to increasing the regularisation weight as there is just simply not enough data to achieve a much more accurate model as the models seen in the previous section.
+We can see in this case there is little benefit to increasing the regularisation weight as there is just simply not enough data to achieve a much more accurate model as the models seen in the previous section. The ideal regularisation weight though likely lies between 0.001 and 0.01 as from the graph we can see from the excessive fluctuating of the validation accuracy for 0.01 that the model is underfitting but for the 0.001 regularisation model we can see the training and validation accuracy diverging towards the end meaning that this model is overfitting.
 
 ![](Images/cifar_5000_0.0001_strides.png){ width=50% }
 ![](Images/cifar_5000_0.001_strides.png){ width=50% }\
@@ -94,7 +94,31 @@ We can see in this case there is little benefit to increasing the regularisation
 
 ## II(c)(i)
 
+Pooling and strides are both methods of downsampling the image. Pooling will take the maximum value of a kernel and apply it to the output while strides will move the kernel across the image by a set amount. The pooling method is likely to achieve better accuracy but is also likely to take longer being more expensive.\
+
+
 ## II(c)(ii)
+
+| Model Type | Training Data Size | Training Time (s) | Train Accuracy | Test Accuracy | Validation Accuracy |
+|------------|--------------------|-------------------|----------------|---------------|---------------------|
+| Pooling    | 40000              | 40.36             | 0.76285        | 0.7164        | 0.7105              |
+| Strides    | 40000              | 24.82             | 0.738725       | 0.6853        | 0.6875              |
+| Pooling    | 20000              | 20.82             | 0.75205        | 0.6873        | 0.6830              |
+| Strides    | 20000              | 13.47             | 0.6866         | 0.6226        | 0.6280              |
+| Pooling    | 10000              | 10.82             | 0.7024         | 0.6032        | 0.5800              |
+| Strides    | 10000              | 6.85              | 0.6665         | 0.5717        | 0.5830              |
+| Pooling    | 5000               | 5.77              | 0.6802         | 0.5589        | 0.5760              |
+| Strides    | 5000               | 4.06              | 0.5976         | 0.4891        | 0.4800              |
+
+Across the board we can see an improvement in the test and validation accuracy in pooling against strides with a new highest value for accuracy with an accuracy of 71.64% for the 40000 training data size model. The most notable improvement is in the 5000 training data size model where the test accuracy goes from 49% to 56%.\ 
+The training time for the pooling model is higher than the strides model. The difference in training time varies greatly with the data set size but can be as little as ~40% and up to ~80%. The training time is longer for the pooling model as it has to perform its computation more times than the strides downsampling as the strides will simply 'skip' some of the pixels as an origin.\
+This model has the same amount of parameters as the strides model for both the model parameters of 37,146 and the optimiser parameters of 74,294. The performance difference is not due to extra complexity in the model but a better setting of the hyperparameters.\
+
+The difference between the two methods are most pronounced in the 5000 training data size model so we will take these two graphs below:\
+![](Images/cifar_5000_0.0001_pooling.png){ width=50% }
+![](Images/cifar_5000_0.0001_strides.png){ width=50% }\
+
+
 
 ## II(d)
 
