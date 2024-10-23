@@ -118,9 +118,23 @@ The difference between the two methods are most pronounced in the 5000 training 
 ![](Images/cifar_5000_0.0001_pooling.png){ width=50% }
 ![](Images/cifar_5000_0.0001_strides.png){ width=50% }\
 
-
-
 ## II(d)
+
+| Model Type | Training Data Size | Regularisation Size | Training Time (s) | Train Accuracy | Test Accuracy | Validation Accuracy |
+|------------|--------------------|---------------------|-------------------|----------------|---------------|---------------------|
+| Advanced   | 40000              | 0.0001              | 60.87             | 0.7525         | 0.677         | 0.6777              |
+| Pooling    | 40000              | 0.0001              | 40.52             | 0.7741         | 0.726         | 0.7243              |
+| Strides    | 40000              | 0.0001              | 24.87             | 0.7444         | 0.6925        | 0.6927              |
+
+
+This section involves implementing a more advanced model to try an achieve better results. The model given in the labsheet was taken however, suprisingly this model did not manage to outperform the current most accurate model of pooling at 40000 data points and regularisation of 0.0001 even with substantially more epochs added (70), it also performed worse than the strides model. The accuracy of the model can be seen in the table above and the graph below under the 'Advanced' model type.\
+The advanced model was able to achieve the accuracy specified in the lab sheet, however I decided to experiment with other models too.
+
+![](Images/cifar_40000_0.0001_advanced.png){ width=50% }
+![](Images/cifar_40000_0.0001_pooling.png){ width=50% }\
+![](Images/cifar_40000_0.0001_strides.png){ width=50% }\
+
+\clearpage
 
 ## Appendices
 

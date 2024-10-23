@@ -2,8 +2,11 @@ import time
 import numpy as np
 from tensorflow.keras import regularizers
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Conv2D, Dropout, Flatten, Dense, MaxPooling2D
+from tensorflow.keras.layers import Conv2D, Dropout, Flatten, Dense, MaxPooling2D, BatchNormalization
 from typing import NamedTuple
+from tensorflow.keras.regularizers import l2
+from tensorflow.keras.optimizers import Adam
+
 
 import matplotlib.pyplot as plt
 
@@ -58,6 +61,27 @@ class ModelRunner:
         model.add(Flatten())
         model.add(Dense(self.num_classes, activation='softmax', kernel_regularizer=regularizers.l1(self.regularisation_size)))
         model.compile(loss="categorical_crossentropy", optimizer='adam', metrics=["accuracy"])
+        self.model = model
+        
+    def build_custom_model(self):
+        model = Sequential()
+        model.add(Conv2D(32, (3, 3), activation='relu', input_shape=(32, 32, 3)))
+        model.add(BatchNormalization())
+        model.add(MaxPooling2D((2, 2)))
+        model.add(Conv2D(64, (3, 3), activation='relu'))
+        model.add(BatchNormalization())
+        model.add(MaxPooling2D((2, 2)))
+        model.add(Conv2D(128, (3, 3), activation='relu'))
+        model.add(BatchNormalization())
+        model.add(MaxPooling2D((2, 2)))
+        model.add(Dropout(0.4))
+        model.add(Flatten())
+        model.add(Dense(128, activation='relu', kernel_regularizer=l2(0.01)))
+        model.add(Dropout(0.4))
+        model.add(Dense(self.num_classes, activation='softmax'))
+        optimizer = Adam(learning_rate=0.0001)
+        model.compile(loss="categorical_crossentropy", optimizer=optimizer, metrics=["accuracy"])
+        
         self.model = model
 
     def train_and_evaluate(self, training_data_size):

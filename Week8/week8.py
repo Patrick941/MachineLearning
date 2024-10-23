@@ -41,13 +41,13 @@ def run_models():
 	baseline_accuracy = np.mean(np.argmax(y_test, axis=1) == np.argmax(y_pred_baseline, axis=1)) * 100
 	print("\033[93mBaseline Classifier Accuracy:\033[0m {:.2f}%".format(baseline_accuracy))
 
-	training_data_sizes = [5000, 10000, 20000, 40000]
+	training_data_sizes = [40000]
 
 	for training_data_size in training_data_sizes:
 		if training_data_size == 5000:
 			regularisation_sizes = [0.0001, 0.001, 0.01, 0.1, 0, 1]
 		else:
-			regularisation_sizes = [0.0001]
+			regularisation_sizes = [0.01]
 		for regularisation_size in regularisation_sizes:
 			if use_saved_model:
 				model = keras.models.load_model("cifar.keras")
@@ -55,37 +55,47 @@ def run_models():
 				x_train_subset = x_train[:training_data_size]
 				y_train_subset = y_train[:training_data_size]
 	
-				model_run = model_runner.ModelRunner(x_train_subset, y_train_subset, x_test, y_test, num_classes, regularisation_size, "strides", 20)
+#				model_run = model_runner.ModelRunner(x_train_subset, y_train_subset, x_test, y_test, num_classes, regularisation_size, "strides", 20)
+#				model_run.train_and_evaluate(training_data_size)
+#				model_results = model_run.results
+#				print(f"\033[93mStrides Model Results for {training_data_size}_{regularisation_size}:\033[0m", model_results)
+#				if (model_results.test_accuracy > best_results.test_accuracy):
+#					best_results = model_results
+#					best_model = model_run.model
+#					best_model_description = "Strides_" + str(training_data_size) + "_" + str(regularisation_size)
+#				if (training_data_size == 5000 and regularisation_size == 0.0001):
+#					model_run.model.summary()
+#				
+#				model_run = model_runner.ModelRunner(x_train_subset, y_train_subset, x_test, y_test, num_classes, regularisation_size, "pooling", 20)
+#				model_run.train_and_evaluate(training_data_size)
+#				model_results = model_run.results
+#				print(f"\033[93mPooling Model Results for {training_data_size}_{regularisation_size}:\033[0m", model_results)
+#				if (model_results.test_accuracy > best_results.test_accuracy):
+#					best_results = model_results
+#					best_model = model_run.model
+#					best_model_description = "Pooling_" + str(training_data_size) + "_" + str(regularisation_size)
+#				if (training_data_size == 5000 and regularisation_size == 0.0001):
+#					model_run.model.summary()
+#				
+#				model_run = model_runner.ModelRunner(x_train_subset, y_train_subset, x_test, y_test, num_classes, regularisation_size, "advanced", 70)
+#				model_run.build_advanced_model()
+#				model_run.train_and_evaluate(training_data_size)
+#				model_results = model_run.results
+#				print(f"\033[93mAdvanced Model Results for {training_data_size}_{regularisation_size}:\033[0m", model_results)
+#				if (model_results.test_accuracy > best_results.test_accuracy):
+#					best_results = model_results
+#					best_model = model_run.model
+#					best_model_description = "Advanced_" + str(training_data_size) + "_" + str(regularisation_size)
+
+				model_run = model_runner.ModelRunner(x_train_subset, y_train_subset, x_test, y_test, num_classes, regularisation_size, "custom", 70)
+				model_run.build_custom_model()
 				model_run.train_and_evaluate(training_data_size)
 				model_results = model_run.results
-				print(f"\033[93mStrides Model Results for {training_data_size}_{regularisation_size}:\033[0m", model_results)
+				print(f"\033[93mCustom Model Results for {training_data_size}_{regularisation_size}:\033[0m", model_results)
 				if (model_results.test_accuracy > best_results.test_accuracy):
 					best_results = model_results
 					best_model = model_run.model
-					best_model_description = "Strides_" + str(training_data_size) + "_" + str(regularisation_size)
-				if (training_data_size == 5000 and regularisation_size == 0.0001):
-					model_run.model.summary()
-				
-				model_run = model_runner.ModelRunner(x_train_subset, y_train_subset, x_test, y_test, num_classes, regularisation_size, "pooling", 20)
-				model_run.train_and_evaluate(training_data_size)
-				model_results = model_run.results
-				print(f"\033[93mPooling Model Results for {training_data_size}_{regularisation_size}:\033[0m", model_results)
-				if (model_results.test_accuracy > best_results.test_accuracy):
-					best_results = model_results
-					best_model = model_run.model
-					best_model_description = "Pooling_" + str(training_data_size) + "_" + str(regularisation_size)
-				if (training_data_size == 5000 and regularisation_size == 0.0001):
-					model_run.model.summary()
-				
-				model_run = model_runner.ModelRunner(x_train_subset, y_train_subset, x_test, y_test, num_classes, regularisation_size, "advanced", 70)
-				model_run.build_advanced_model()
-				model_run.train_and_evaluate(training_data_size)
-				model_results = model_run.results
-				print(f"\033[93mAdvanced Model Results for {training_data_size}_{regularisation_size}:\033[0m", model_results)
-				if (model_results.test_accuracy > best_results.test_accuracy):
-					best_results = model_results
-					best_model = model_run.model
-					best_model_description = "Advanced_" + str(training_data_size) + "_" + str(regularisation_size)
+					best_model_description = "Custom_" + str(training_data_size) + "_" + str(regularisation_size)
 		
 	print("\033[93mBest Model Description:\033[0m", best_model_description)
 	print("\033[93mBest Model Results:\033[0m", best_results)
