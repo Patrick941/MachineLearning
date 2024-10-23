@@ -52,6 +52,21 @@ The validation accuracy and training accuracy of the model can be plotted over i
 As already stated by the difference in the training and validation accuracy we can see that this model is overfitting. From the graph we can tell this because the line for the training accuracy and validation accuracy begin to diverge from one another before the end of the training. We can also see it from the loss graph because the training loss continues to decrease while the validation loss becomes stagnant.
 
 ## II(b)(iii)
+| Training Data Size | Training Time (s) | Train Accuracy | Test Accuracy | Validation Accuracy |
+|--------------------|-------------------|----------------|---------------|---------------------|
+| 5000               | 4.06              | 0.60           | 0.49          | 0.48                |
+| 10000              | 6.85              | 0.67           | 0.57          | 0.58                |
+| 20000              | 13.47             | 0.69           | 0.62          | 0.63                |
+| 40000              | 24.82             | 0.74           | 0.69          | 0.69                |
+
+The data shown in the table above shows that as the training data size increases the test accuracy increase. Noteably as previously mentioned also the model is overfitting less as the training data size increases. This is due to the increase in diversity of the training data and improves the models ability to generalise.\
+As the training data size increases the training time also predictably increases. In this case the training was done on a CPU so all of the training times are long. We can see that the training time for each doubling of the training data size is between 75% and 100% longer.\
+The graphs below show the same data as the table above, we can see that the accuracy increases with the training data size as does the effects of overfitting lessen.\
+
+![](Images/cifar_5000_0.0001_advanced.png){ width=50% }
+![](Images/cifar_10000_0.0001_advanced.png){ width=50% }\
+![](Images/cifar_20000_0.0001_advanced.png){ width=50% }
+![](Images/cifar_40000_0.0001_advanced.png){ width=50% }\
 
 ## II(b)(iv)
 
