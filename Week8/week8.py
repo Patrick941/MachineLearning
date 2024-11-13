@@ -87,7 +87,7 @@ def run_models():
 #					best_model = model_run.model
 #					best_model_description = "Advanced_" + str(training_data_size) + "_" + str(regularisation_size)
 
-				model_run = model_runner.ModelRunner(x_train_subset, y_train_subset, x_test, y_test, num_classes, regularisation_size, "custom", 70)
+				model_run = model_runner.ModelRunner(x_train_subset, y_train_subset, x_test, y_test, num_classes, regularisation_size, "custom", 150)
 				model_run.build_custom_model()
 				model_run.train_and_evaluate(training_data_size)
 				model_results = model_run.results

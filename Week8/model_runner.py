@@ -64,29 +64,29 @@ class ModelRunner:
         self.model = model
         
     def build_custom_model(self):
-        model = Sequential()
-        model.add(Conv2D(32, (3, 3), activation='relu', input_shape=(32, 32, 3)))
+        model=Sequential()
+        model.add(Conv2D(32,(3,3),activation='relu',input_shape=(32,32,3),kernel_regularizer=l2(0.01)))
         model.add(BatchNormalization())
-        model.add(MaxPooling2D((2, 2)))
-        model.add(Conv2D(64, (3, 3), activation='relu'))
+        model.add(MaxPooling2D((2,2)))
+        model.add(Conv2D(64,(3,3),activation='relu',kernel_regularizer=l2(0.01)))
         model.add(BatchNormalization())
-        model.add(MaxPooling2D((2, 2)))
-        model.add(Conv2D(128, (3, 3), activation='relu'))
+        model.add(MaxPooling2D((2,2)))
+        model.add(Conv2D(128,(3,3),activation='relu',kernel_regularizer=l2(0.01)))
         model.add(BatchNormalization())
-        model.add(MaxPooling2D((2, 2)))
-        model.add(Dropout(0.4))
+        model.add(MaxPooling2D((2,2)))
+        model.add(Dropout(0.5))
         model.add(Flatten())
-        model.add(Dense(128, activation='relu', kernel_regularizer=l2(0.01)))
-        model.add(Dropout(0.4))
-        model.add(Dense(self.num_classes, activation='softmax'))
-        optimizer = Adam(learning_rate=0.0001)
-        model.compile(loss="categorical_crossentropy", optimizer=optimizer, metrics=["accuracy"])
-        
-        self.model = model
+        model.add(Dense(128,activation='relu',kernel_regularizer=l2(0.1)))
+        model.add(Dropout(0.5))
+        model.add(Dense(self.num_classes,activation='softmax'))
+        optimizer=Adam(learning_rate=0.00005)
+        model.compile(loss="categorical_crossentropy",optimizer=optimizer,metrics=["accuracy"])
+        self.model=model
+
 
     def train_and_evaluate(self, training_data_size):
         start_time = time.time()
-        history = self.model.fit(self.x_train, self.y_train, batch_size=128, epochs=self.epochs, validation_split=0.1, verbose=0)
+        history = self.model.fit(self.x_train, self.y_train, batch_size=128, epochs=self.epochs, validation_split=0.1)
         end_time = time.time()
 
         training_time = end_time - start_time
