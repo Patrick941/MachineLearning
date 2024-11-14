@@ -1,3 +1,4 @@
+Vocabulary size: 40
 step 0: train loss 3.7678, val loss 3.7665
 step 300: train loss 0.9791, val loss 0.9887
 step 600: train loss 0.3881, val loss 0.3914

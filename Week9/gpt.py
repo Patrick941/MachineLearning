@@ -253,6 +253,10 @@ if args.no_train == None:
     # create a PyTorch optimizer
     optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
 
+    # Write the vocabulary size to the log
+    with open(log_file, 'a') as f:
+        f.write(f"Vocabulary size: {vocab_size}\n")
+
     for iter in range(max_iters):
 
         # every once in a while evaluate the loss on train and val sets
@@ -336,4 +340,25 @@ if args.no_train == "True":
   
     results_log = f"Logs/final_loss_{args.path.split('/')[-1].split('.')[0]}_params{args.parameters}.log"
     with open(results_log, 'w') as f:
+        f.write('Vocabulary size: {}\n'.format(vocab_size))
+        f.write("Trained Model:\n")
         f.write(f"Validation Loss: {val_loss:.4f}\n")
+
+    val_data = val_data.to(device)
+
+    # Identify the most frequent character and its index
+    most_frequent_char = max(set(text), key=text.count)
+    most_frequent_char_idx = stoi[most_frequent_char]
+
+    # Generate dummy predictions (all predictions set to the index of the most frequent character)
+    dummy_predictions = torch.full((len(val_data),), most_frequent_char_idx, dtype=torch.float, device=device)
+
+    # Calculate dummy loss
+    # Ensure all tensors (both predictions and targets) are on the same device and of compatible types
+    dummy_loss = F.cross_entropy(dummy_predictions.unsqueeze(0), val_data.unsqueeze(0).float()).item()
+
+    # Log the dummy classifier loss
+    with open(results_log, 'a') as f:
+        f.write("Baseline Dummy Classifier:\n")
+        f.write(f"Validation Loss: {dummy_loss:.4f}\n")
+
