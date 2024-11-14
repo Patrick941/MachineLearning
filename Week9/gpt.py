@@ -1,52 +1,72 @@
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
+import sys
+import argparse
+
+parser = argparse.ArgumentParser(description='GPT Language Model')
+parser.add_argument('--path', type=str, help='Path to the input file')
+parser.add_argument('--parameters', type=int, help='Hyperparameters set')
+parser.add_argument('--model-path', type=str, help='Path to the model file')
+parser.add_argument('--no-train', type=str, help='Skip training')
+args = parser.parse_args()
+
+if args.no_train != "True":
+    log_file = f"Logs/results_{args.path.split('/')[-1].split('.')[0]}_params{args.parameters}.log"
+    with open(log_file, 'w') as f:
+        f.write('')
 
 # hyperparameters
 # Hyperparameters set 1
-# batch_size = 16
-# block_size = 64
-# max_iters = 2000
-# eval_interval = 200
-# learning_rate = 3e-4
-# device = 'cuda' if torch.cuda.is_available() else 'cpu'
-# eval_iters = 50
-# n_embd = 128
-# n_head = 4 
-# n_layer = 4 
-# dropout = 0.1
+if args.parameters == 1:
+    batch_size = 16
+    block_size = 64
+    max_iters = 2000
+    eval_interval = 200
+    learning_rate = 3e-4
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    eval_iters = 50
+    n_embd = 128
+    n_head = 4 
+    n_layer = 4 
+    dropout = 0.1
 # ------------
 
 # Hyperparameters set 2
-batch_size = 32
-block_size = 128
-max_iters = 3000
-eval_interval = 300
-learning_rate = 2e-4
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
-eval_iters = 100
-n_embd = 128
-n_head = 3
-n_layer = 3
-dropout = 0.2
+if args.parameters == 2:
+    batch_size = 32
+    block_size = 128
+    max_iters = 3000
+    eval_interval = 300
+    learning_rate = 2e-4
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    eval_iters = 100
+    n_embd = 128
+    n_head = 3
+    n_layer = 3
+    dropout = 0.2
 
 # Hyperparameters set 3
-# batch_size = 128
-# block_size = 256
-# max_iters = 3000
-# eval_interval = 300
-# learning_rate = 2e-4
-# device = 'cuda' if torch.cuda.is_available() else 'cpu'
-# eval_iters = 100
-# n_embd = 172
-# n_head = 2
-# n_layer = 2
-# dropout = 0.2
+if args.parameters == 3:
+    batch_size = 128
+    block_size = 256
+    max_iters = 3000
+    eval_interval = 300
+    learning_rate = 2e-4
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    eval_iters = 100
+    n_embd = 172
+    n_head = 2
+    n_layer = 2
+    dropout = 0.2
 
 torch.manual_seed(1337)
 
 # wget https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt
-with open('input_childSpeech_trainingSet.txt', 'r', encoding='utf-8') as f:
+
+input_file = args.path
+
+with open(input_file, 'r', encoding='utf-8') as f:
     text = f.read()
 
 # here are all the unique characters that occur in this text
@@ -137,9 +157,9 @@ class FeedFoward(nn.Module):
     def __init__(self, n_embd):
         super().__init__()
         self.net = nn.Sequential(
-            nn.Linear(n_embd, 4 * n_embd),
+            nn.Linear(n_embd, 4 * n_embd, bias=False),
             nn.ReLU(),
-            nn.Linear(4 * n_embd, n_embd),
+            nn.Linear(4 * n_embd, n_embd, bias=False),
             nn.Dropout(dropout),
         )
 
@@ -223,31 +243,64 @@ class GPTLanguageModel(nn.Module):
             idx = torch.cat((idx, idx_next), dim=1) # (B, T+1)
         return idx
 
-model = GPTLanguageModel()
-m = model.to(device)
-# print the number of parameters in the model
-print(sum(p.numel() for p in m.parameters())/1e6, 'M parameters')
+if args.no_train == None:
+    model = GPTLanguageModel()
+    m = model.to(device)
+    # print the number of parameters in the model
+    print(sum(p.numel() for p in m.parameters())/1e6, 'M parameters')
 
-# create a PyTorch optimizer
-optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
+    # create a PyTorch optimizer
+    optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
 
-for iter in range(max_iters):
+    for iter in range(max_iters):
 
-    # every once in a while evaluate the loss on train and val sets
-    if iter % eval_interval == 0 or iter == max_iters - 1:
-        losses = estimate_loss()
-        print(f"step {iter}: train loss {losses['train']:.4f}, val loss {losses['val']:.4f}")
+        # every once in a while evaluate the loss on train and val sets
+        if iter % eval_interval == 0 or iter == max_iters - 1:
+            losses = estimate_loss()
 
-    # sample a batch of data
-    xb, yb = get_batch('train')
+            # Append losses during training
+            with open(log_file, 'a') as f:
+                f.write(f"step {iter}: train loss {losses['train']:.4f}, val loss {losses['val']:.4f}\n")
 
-    # evaluate the loss
-    logits, loss = model(xb, yb)
-    optimizer.zero_grad(set_to_none=True)
-    loss.backward()
-    optimizer.step()
+        # sample a batch of data
+        xb, yb = get_batch('train')
 
-# generate from the model
-context = torch.zeros((1, 1), dtype=torch.long, device=device)
-print(decode(m.generate(context, max_new_tokens=500)[0].tolist()))
-#open('more.txt', 'w').write(decode(m.generate(context, max_new_tokens=10000)[0].tolist()))
+        # evaluate the loss
+        logits, loss = model(xb, yb)
+        optimizer.zero_grad(set_to_none=True)
+        loss.backward()
+        optimizer.step()
+
+    # generate from the model
+    context = torch.zeros((1, 1), dtype=torch.long, device=device)
+    print(decode(m.generate(context, max_new_tokens=500)[0].tolist()))
+
+    # Save the model
+    torch.save(model.state_dict(), args.model_path)
+    print(f"Model saved to {args.model_path}")
+
+
+
+if args.no_train == "True":
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    
+    # Load the model
+    model = GPTLanguageModel().to(device)
+    model.load_state_dict(torch.load(args.model_path, map_location=device))
+    model.eval()  # Set model to evaluation mode
+    print(f"Model loaded from {args.model_path}")
+
+    # Prepare the validation dataset
+    with open(args.path, 'r', encoding='utf-8') as f:
+        text = f.read()
+    
+    # Process the text data
+    data = torch.tensor(encode(text), dtype=torch.long)
+    val_data = data
+
+    loss = estimate_loss()
+    val_loss = loss['val'].item()
+  
+    results_log = f"Logs/final_loss_{args.path.split('/')[-1].split('.')[0]}_params{args.parameters}.log"
+    with open(results_log, 'a') as f:
+        f.write(f"Validation Loss: {val_loss:.4f}\n")

@@ -1,0 +1,19 @@
+#!/bin/bash
+
+for i in {1..3}; do
+    python gpt.py --path input_childSpeech_trainingSet.txt --parameters $i --model-path Models/model_childSpeech_params$i
+done
+
+LowestLost=100000000
+bestIndex=-1
+for i in {1..3}; do
+    loss=$(tail -n 1 Logs/results_input_childSpeech_trainingSet_params$i.log | awk '{print $NF}')
+    if (( $(awk "BEGIN {print ($loss < $LowestLost)}") )); then
+        LowestLost=$loss
+        bestIndex=$i
+        BestModel=Models/model_childSpeech_params$i
+    fi
+done
+
+python gpt.py --path input_childSpeech_testSet.txt --parameters $bestIndex --model-path $BestModel --no-train True
+python gpt.py --path input_shakespeare.txt --parameters $bestIndex --model-path $BestModel --no-train True
