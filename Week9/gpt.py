@@ -18,15 +18,28 @@ if args.no_train != "True":
         f.write('')
 
 # hyperparameters
+# Original set of hyperparameters
+batch_size = 64 # how many independent sequences will we process in parallel?
+block_size = 256 # what is the maximum context length for predictions?
+max_iters = 5000
+eval_interval = 500
+learning_rate = 3e-4
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+eval_iters = 200
+n_embd = 384
+n_head = 6
+n_layer = 6
+dropout = 0.2
+
 # Hyperparameters set 1
 if args.parameters == 1:
-    batch_size = 16
+    batch_size = 64
     block_size = 64
-    max_iters = 2000
-    eval_interval = 200
-    learning_rate = 3e-4
+    max_iters = 3000
+    eval_interval = 300
+    learning_rate = 2e-4
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    eval_iters = 50
+    eval_iters = 200
     n_embd = 128
     n_head = 4 
     n_layer = 4 
@@ -35,31 +48,31 @@ if args.parameters == 1:
 
 # Hyperparameters set 2
 if args.parameters == 2:
-    batch_size = 32
+    batch_size = 64
     block_size = 128
     max_iters = 3000
     eval_interval = 300
     learning_rate = 2e-4
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    eval_iters = 100
+    eval_iters = 200
     n_embd = 128
     n_head = 3
     n_layer = 3
-    dropout = 0.2
+    dropout = 0.1
 
 # Hyperparameters set 3
 if args.parameters == 3:
-    batch_size = 128
+    batch_size = 64
     block_size = 256
     max_iters = 3000
     eval_interval = 300
     learning_rate = 2e-4
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    eval_iters = 100
+    eval_iters = 200
     n_embd = 172
     n_head = 2
     n_layer = 2
-    dropout = 0.2
+    dropout = 0.1
 
 torch.manual_seed(1337)
 
@@ -248,7 +261,8 @@ if args.no_train == None:
     model = GPTLanguageModel()
     m = model.to(device)
     # print the number of parameters in the model
-    print(sum(p.numel() for p in m.parameters())/1e6, 'M parameters')
+    with open(log_file, 'a') as f:
+        f.write(f"{sum(p.numel() for p in m.parameters())/1e6} M parameters\n")
 
     # create a PyTorch optimizer
     optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
