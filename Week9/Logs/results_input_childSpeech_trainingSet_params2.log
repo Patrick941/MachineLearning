@@ -1,0 +1,11 @@
+step 0: train loss 3.7678, val loss 3.7665
+step 300: train loss 0.9791, val loss 0.9887
+step 600: train loss 0.3881, val loss 0.3914
+step 900: train loss 0.3687, val loss 0.3719
+step 1200: train loss 0.3601, val loss 0.3612
+step 1500: train loss 0.3550, val loss 0.3574
+step 1800: train loss 0.3527, val loss 0.3550
+step 2100: train loss 0.3532, val loss 0.3566
+step 2400: train loss 0.3487, val loss 0.3505
+step 2700: train loss 0.3463, val loss 0.3520
+step 2999: train loss 0.3486, val loss 0.3500

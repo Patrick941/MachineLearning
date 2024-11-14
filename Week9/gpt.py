@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
+from torch.nn import Parameter
 import sys
 import argparse
 
@@ -284,9 +285,41 @@ if args.no_train == None:
 if args.no_train == "True":
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     
-    # Load the model
     model = GPTLanguageModel().to(device)
-    model.load_state_dict(torch.load(args.model_path, map_location=device))
+
+    # Load the checkpoint
+    checkpoint = torch.load(args.model_path, map_location=device)
+
+    # Retrieve embedding and output weights from checkpoint
+    embedding_weight = checkpoint['token_embedding_table.weight']
+    output_weight = checkpoint['lm_head.weight']
+    output_bias = checkpoint['lm_head.bias']
+
+    # Check for vocabulary size mismatch
+    checkpoint_vocab_size = embedding_weight.shape[0]
+    if checkpoint_vocab_size != vocab_size:
+        print("Adjusting model for different vocab size...")
+
+        # Adjust token embedding layer
+        new_embedding_weight = torch.zeros((vocab_size, n_embd), device=device)
+        new_embedding_weight[:min(vocab_size, checkpoint_vocab_size), :] = embedding_weight[:min(vocab_size, checkpoint_vocab_size), :]
+        model.token_embedding_table = nn.Embedding(vocab_size, n_embd).to(device)
+        model.token_embedding_table.weight = Parameter(new_embedding_weight)
+
+        # Adjust lm_head output layer weights
+        new_output_weight = torch.zeros((vocab_size, n_embd), device=device)
+        new_output_weight[:min(vocab_size, checkpoint_vocab_size), :] = output_weight[:min(vocab_size, checkpoint_vocab_size), :]
+        model.lm_head = nn.Linear(n_embd, vocab_size).to(device)
+        model.lm_head.weight = Parameter(new_output_weight)
+
+        # Adjust lm_head output layer biases
+        new_output_bias = torch.zeros(vocab_size, device=device)
+        new_output_bias[:min(vocab_size, checkpoint_vocab_size)] = output_bias[:min(vocab_size, checkpoint_vocab_size)]
+        model.lm_head.bias = Parameter(new_output_bias)
+    else:
+        # No mismatch, load state dictionary directly
+        model.load_state_dict(checkpoint)
+
     model.eval()  # Set model to evaluation mode
     print(f"Model loaded from {args.model_path}")
 
@@ -302,5 +335,5 @@ if args.no_train == "True":
     val_loss = loss['val'].item()
   
     results_log = f"Logs/final_loss_{args.path.split('/')[-1].split('.')[0]}_params{args.parameters}.log"
-    with open(results_log, 'a') as f:
+    with open(results_log, 'w') as f:
         f.write(f"Validation Loss: {val_loss:.4f}\n")
