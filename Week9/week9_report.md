@@ -29,7 +29,7 @@ The parameters of the model that I changed were:
 
 The parameter count of this model was 0.80772 M parameters\
 Block size is the maximum context length. Which is the amount of previous tokens that the model will consider when predicting the next token.
-* The block size was reduced 4 times to 64. This was done to reduce the parameter count of the model, I chose to reduce this significantly as looking at the data set I saw that each line was quite short and independant of the next and previous lines so a large context size is unnecessary.\
+* The block size was reduced 4 times to 64. This was done to reduce the parameter count of the model, I chose to reduce this significantly as looking at the data set I saw that each line was quite short and independent of the next and previous lines so a large context size is unnecessary.\
 Max Iterations is the maximum number of iterations that the model will train for.
 * The max iterations was reduced to 3000 as it was found that the simpler model did not need as many iterations to train and reducing this would reduce the training time and level of overfitting.\
 Evaluation Interval is the number of iterations between evaluations against the validation set.
@@ -137,7 +137,23 @@ Skip layers are not overly necessary in the models used during this project as t
 
 ## II(a)
 
+The code was setup so that it could select training data, parameter set and output model path from command line so I created a simple bash script that would loop through the parameter sets and save save the best model to a variable.\
+The python script was then update with a new CLI argument --no-train which would load the model from the path instead of training and then get the loss of the model on the test set.\
+The bash script then saw further updates to load the best model and get the loss of the two other datasets that it had not been trained on.\
+For this section the input_childSpeech_testSet.txt dataset was used to test the models. The loss of the model on this dataset was near identical to the loss of the model on the validation set during training. This is because the data set is the same style (children's speech) as the training set. The loss of the best model on the validation set is shown above as 0.3362. Then when run on the test dataset the loss was 0.3422. This is a very small increase in loss and shows that the model generalises well to unseen data of the same style.\
+When compared to the baseline model this model does massively better, the baseline model simply predicts the most common token in the training set for every token. This results in a loss of 4781820.0000 which is significantly worse than the best model. The massive difference between the two models show that the model is performing well because it has managed to capture the structure of the data and not just because the data is simple.
+
 ## II(b)
+
+The above mentioned bash script would also test the loss of the best child_speech model on the shakespeare dataset which is a dataset of shakespearean text. The major differences between this dataset and the training set is:
+* The vocabulary size is 65
+* The sentence structure is much more complex
+* The words used are more complex
+* Old English is used
+* Lines are not just independent of each other but are part of a larger story
+
+Based on this we can expect to see a much larger loss than was seen for the child_speech_test_set. The code first had to be updated so that the model could handle any vocabulary size instead of being set to 45. After this the model was run against the shakespeare dataset and the loss was 4.2054. This compared to the performance of the child speech dataset shows that the model has learned the structure of the child speech dataset specifically. However, when we compare it to the baseline classifier with a loss of 568631680.0000 we can see that the model is still performing a lot better than baseline which is because it has learned the structure of English language even though it is one specific style.\
+In practice the model would need to be fine-tuned on the shakespeare dataset so that it could learn the structure of the shakespearean language. Another cheaper option that takes advantage of the already trained data is to use transfer learning. This is where the trained model is used as a starting point and then some of the layers are unfrozen and the model is trained on the new data. This allows the earlier layers to remember the base structure of words and the later layers to learn the new structure of the shakespearean language.
 
 ## Appendices
 

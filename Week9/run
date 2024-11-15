@@ -17,3 +17,6 @@ done
 
 python gpt.py --path input_childSpeech_testSet.txt --parameters $bestIndex --model-path $BestModel --no-train True
 python gpt.py --path input_shakespeare.txt --parameters $bestIndex --model-path $BestModel --no-train True
+
+echo "Testing complex model"
+python gpt.py --path input_childSpeech_trainingSet.txt --parameters 4 --model-path Models/model_childSpeech_params4
