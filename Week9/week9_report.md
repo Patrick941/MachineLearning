@@ -158,15 +158,108 @@ In practice the model would need to be fine-tuned on the shakespeare dataset so 
 ## Appendices
 
 ### I(a)
+```python
+input_file = args.path
+
+with open(input_file, 'r', encoding='utf-8') as f:
+    text = f.read()
+```
 
 ### I(b)
+```python
+if args.parameters == 1:
+    batch_size = 64
+    block_size = 64
+    max_iters = 3000
+    eval_interval = 300
+    learning_rate = 2e-4
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    eval_iters = 200
+    n_embd = 128
+    n_head = 4 
+    n_layer = 4 
+    dropout = 0.1
+```
 
 ### I(c)
 
-### I(d)
+```python
+# Hyperparameters set 2
+if args.parameters == 2:
+    batch_size = 64
+    block_size = 128
+    max_iters = 3000
+    eval_interval = 300
+    learning_rate = 2e-4
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    eval_iters = 200
+    n_embd = 128
+    n_head = 3
+    n_layer = 3
+    dropout = 0.1
 
-### I(e)
+# Hyperparameters set 3
+if args.parameters == 3:
+    batch_size = 64
+    block_size = 256
+    max_iters = 3000
+    eval_interval = 300
+    learning_rate = 2e-4
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    eval_iters = 500
+    n_embd = 172
+    n_head = 2
+    n_layer = 2
+    dropout = 0.1
+```
+
+```python
+ for iter in range(max_iters):
+        # every once in a while evaluate the loss on train and val sets
+        if iter % eval_interval == 0 or iter == max_iters - 1:
+            losses = estimate_loss()
+            # Append losses during training
+            with open(log_file, 'a') as f:
+                f.write(f"step {iter}: train loss {losses['train']:.4f}, val loss {losses['val']:.4f}\n")
+```
+
+### I(d)
+```python
+nn.Linear(n_embd, 4 * n_embd, bias=False),
+nn.ReLU(),
+nn.Linear(4 * n_embd, n_embd, bias=False),
+nn.Dropout(dropout),
+```
+```python
+nn.Linear(n_embd, 4 * n_embd, bias=True),
+nn.ReLU(),
+nn.Linear(4 * n_embd, n_embd, bias=True),
+nn.Dropout(dropout),
+```
 
 ### II(a)
 
-### II(b)
+```bash
+#!/bin/bash
+
+for i in {1..3}; do
+    python gpt.py --path input_childSpeech_trainingSet.txt --parameters $i --model-path Models/model_childSpeech_params$i
+done
+
+LowestLost=100000000
+bestIndex=-1
+for i in {1..3}; do
+    loss=$(tail -n 1 Logs/results_input_childSpeech_trainingSet_params$i.log | awk '{print $NF}')
+    if (( $(awk "BEGIN {print ($loss < $LowestLost)}") )); then
+        LowestLost=$loss
+        bestIndex=$i
+        BestModel=Models/model_childSpeech_params$i
+    fi
+done
+
+python gpt.py --path input_childSpeech_testSet.txt --parameters $bestIndex --model-path $BestModel --no-train True
+python gpt.py --path input_shakespeare.txt --parameters $bestIndex --model-path $BestModel --no-train True
+
+echo "Testing complex model"
+python gpt.py --path input_childSpeech_trainingSet.txt --parameters 4 --model-path Models/model_childSpeech_params4
+```

@@ -74,19 +74,6 @@ if args.parameters == 3:
     n_layer = 2
     dropout = 0.1
     
-if args.parameters == 4:
-    batch_size = 128
-    block_size = 512
-    max_iters = 10000
-    eval_interval = 1000
-    learning_rate = 1e-4
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    eval_iters = 500
-    n_embd = 1024
-    n_head = 16
-    n_layer = 12
-    dropout = 0.3
-
 torch.manual_seed(1337)
 
 # wget https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt
