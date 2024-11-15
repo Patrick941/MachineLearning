@@ -126,6 +126,9 @@ The three models do not overfit significantly, the loss of the validation set is
 
 ## I(d)
 
+Bias terms are parameters added to the output of a neuron before applying an activation function. They are used to shift the output of the neuron by a constant value. This is useful when the data is not centered around zero. The effect of this in a transformer  model is that contextual understanding will be improved and the end of a sentence is more likely to fit the start of the sentence. Language is also non-linear so the bias term enables the LLM to learn language better.\
+In this case the bias term being set to true or false made nearly no difference this is likely due to the fact that the data is based on sentences from children and do not have a lot of context to them or make very much sense.
+
 ## I(e)
 
 ## II(a)
