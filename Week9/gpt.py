@@ -68,7 +68,7 @@ if args.parameters == 3:
     eval_interval = 300
     learning_rate = 2e-4
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    eval_iters = 200
+    eval_iters = 500
     n_embd = 172
     n_head = 2
     n_layer = 2
