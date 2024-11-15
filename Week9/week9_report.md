@@ -131,6 +131,10 @@ In this case the bias term being set to true or false made nearly no difference 
 
 ## I(e)
 
+Skip layers are connections between layers that skip the layer(s) directly in front of them. In a model they can improve both stability and performance.\ 
+In the context of GPTs they help prevent the vanishing gradient problem which is where the gradients during backpropagation become so small that they do not update and the model stops learning, it does this because the weight update is based on the previous layer but also the residual connection. The more layers that a model has the more crucial the skip layers are.\
+Skip layers are not overly necessary in the models used during this project as the parameter count is capped at 1M the skip layers are not as crucial as the model is not very deep. The residual connections will also improve generalisation of the model as the model will not create overly complex features that are not useful (overfitting).
+
 ## II(a)
 
 ## II(b)
